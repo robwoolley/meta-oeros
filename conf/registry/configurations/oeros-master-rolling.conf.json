@@ -43,11 +43,11 @@
                 "rev": "master"
             }
         },
-        "meta-qt5": {
+        "meta-qt6": {
             "git-remote": {
-                "uri": "https://github.com/meta-qt5/meta-qt5.git",
-                "branch": "master",
-                "rev": "master"
+                "uri": "http://code.qt.io/yocto/meta-qt6.git",
+                "branch": "6.11",
+                "rev": "6.11"
             }
         },
         "meta-raspberrypi": {
@@ -100,7 +100,7 @@
                     "meta-clang",
                     "meta-intel-realsense",
                     "meta-python-ai",
-                    "meta-qt5",
+                    "meta-qt6",
                     "meta-raspberrypi",
                     "meta-ros/meta-ros-common",
                     "meta-ros/meta-ros2",

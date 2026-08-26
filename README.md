@@ -4,6 +4,23 @@ Oeros Distro
 This is a reference distribution for OpenEmbedded (OE) with the Robot Operating
 System (ROS).
 
+bitbake-setup
+-------------
+
+```
+git clone https://git.openembedded.org/bitbake
+
+curl -O https://raw.githubusercontent.com/robwoolley/meta-oeros/refs/heads/master/conf/registry/configurations/oeros-master-rolling.conf.json
+
+./bitbake/bin/bitbake-setup init --non-interactive \
+     oeros-master-rolling.conf.json \
+     oeros-master-rolling machine/qemux86-64
+
+. ./bitbake-builds/oeros-master-rolling/build/init-build-env
+
+bitbake ros-image-core
+```
+
 Contribution Guidelines
 -----------------------
 
