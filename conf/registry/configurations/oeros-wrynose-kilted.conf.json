@@ -4,50 +4,50 @@
         "meta-clang": {
             "git-remote": {
                 "uri": "https://github.com/kraj/meta-clang.git",
-                "branch": "master",
-                "rev": "master"
+                "branch": "wrynose",
+                "rev": "wrynose"
             }
         },
         "meta-clang-revival": {
             "git-remote": {
                 "uri": "https://github.com/zboszor/meta-clang-revival",
-                "branch": "master",
-                "rev": "master"
+                "branch": "wrynose",
+                "rev": "wrynose"
             }
         },
         "meta-openembedded": {
             "git-remote": {
                 "uri": "https://github.com/openembedded/meta-openembedded.git",
-                "branch": "master",
+                "branch": "wrynose",
                 "rev": "100027977216601000cbefc42c2ff6cf667e7b5e"
             }
         },
         "meta-yocto": {
             "git-remote": {
                 "uri": "https://git.yoctoproject.org/meta-yocto",
-                "branch": "master",
+                "branch": "wrynose",
                 "rev": "8251bdad5fda780a000fb41e6eda82eadf0fa39e"
             }
         },
         "meta-oeros": {
             "git-remote": {
                 "uri": "https://github.com/robwoolley/meta-oeros.git",
-                "branch": "master",
-                "rev": "master"
+                "branch": "wrynose",
+                "rev": "wrynose"
             }
         },
         "openembedded-core": {
             "git-remote": {
                 "uri": "https://github.com/openembedded/openembedded-core.git",
-                "branch": "master",
+                "branch": "wrynose",
                 "rev": "06dd66e6220e5ce4ed4b9af4d8231ae5f0a8ce80"
             }
         },
         "meta-python-ai": {
             "git-remote": {
                 "uri": "https://github.com/zboszor/meta-python-ai",
-                "branch": "master",
-                "rev": "master"
+                "branch": "wrynose",
+                "rev": "wrynose"
             }
         },
         "meta-qt5": {
@@ -60,22 +60,22 @@
         "meta-intel-realsense": {
             "git-remote": {
                 "uri": "https://github.com/realsenseai/meta-intel-realsense.git",
-                "branch": "master",
-                "rev": "master"
+                "branch": "wrynose",
+                "rev": "wrynose"
             }
         },
         "meta-ros": {
             "git-remote": {
                 "uri": "https://github.com/ros/meta-ros.git",
-                "branch": "master",
-                "rev": "master"
+                "branch": "wrynose",
+                "rev": "wrynose"
             }
         },
         "meta-virtualization": {
             "git-remote": {
                 "uri": "https://git.yoctoproject.org/meta-virtualization",
-                "branch": "master",
-                "rev": "master"
+                "branch": "wrynose",
+                "rev": "wrynose"
             }
         },
         "meta-zenoh": {
@@ -88,8 +88,8 @@
         "meta-raspberrypi": {
             "git-remote": {
                 "uri": "https://github.com/agherzan/meta-raspberrypi.git",
-                "branch": "master",
-                "rev": "master"
+                "branch": "wrynose",
+                "rev": "wrynose"
             }
         }
     },
