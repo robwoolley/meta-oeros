@@ -60,8 +60,8 @@
         "meta-ros": {
             "git-remote": {
                 "uri": "https://github.com/ros/meta-ros.git",
-                "branch": "master-next",
-                "rev": "master-next"
+                "branch": "master",
+                "rev": "master"
             }
         },
         "meta-virtualization": {
