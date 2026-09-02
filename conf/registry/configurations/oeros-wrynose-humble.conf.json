@@ -1,5 +1,5 @@
 {
-    "description": "OpenEmbedded ROS - Master Rolling",
+    "description": "OpenEmbedded ROS - Wrynose Humble",
     "sources": {
         "meta-clang": {
             "git-remote": {
@@ -8,11 +8,25 @@
                 "rev": "master"
             }
         },
+        "meta-clang-revival": {
+            "git-remote": {
+                "uri": "https://github.com/zboszor/meta-clang-revival",
+                "branch": "master",
+                "rev": "master"
+            }
+        },
         "meta-openembedded": {
             "git-remote": {
                 "uri": "https://github.com/openembedded/meta-openembedded.git",
                 "branch": "master",
-                "rev": "master"
+                "rev": "100027977216601000cbefc42c2ff6cf667e7b5e"
+            }
+        },
+        "meta-yocto": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-yocto",
+                "branch": "master",
+                "rev": "8251bdad5fda780a000fb41e6eda82eadf0fa39e"
             }
         },
         "meta-oeros": {
@@ -26,7 +40,7 @@
             "git-remote": {
                 "uri": "https://github.com/openembedded/openembedded-core.git",
                 "branch": "master",
-                "rev": "master"
+                "rev": "06dd66e6220e5ce4ed4b9af4d8231ae5f0a8ce80"
             }
         },
         "meta-python-ai": {
@@ -36,18 +50,18 @@
                 "rev": "master"
             }
         },
-        "meta-qt6": {
+        "meta-qt5": {
             "git-remote": {
-                "uri": "https://code.qt.io/yocto/meta-qt6.git",
-                "branch": "6.11",
-                "rev": "6.11"
+                "uri": "https://github.com/meta-qt5/meta-qt5.git",
+                "branch": "master",
+                "rev": "master"
             }
         },
         "meta-intel-realsense": {
             "git-remote": {
                 "uri": "https://github.com/realsenseai/meta-intel-realsense.git",
-                "branch": "wrynose",
-                "rev": "wrynose"
+                "branch": "master",
+                "rev": "master"
             }
         },
         "meta-ros": {
@@ -82,11 +96,12 @@
     "bitbake-setup": {
         "configurations": [
             {
-                "name": "oeros-master-rolling",
-                "description": "OpenEmbedded ROS Master Rolling",
-                "setup-dir-name": "oeros-master-rolling",
+                "name": "oeros-wrynose-humble",
+                "description": "OpenEmbedded ROS Wrynose Humble",
+                "setup-dir-name": "oeros-wrynose-humble",
                 "bb-layers": [
                     "meta-clang",
+                    "meta-clang-revival",
                     "meta-openembedded/meta-filesystems",
                     "meta-openembedded/meta-gnome",
                     "meta-openembedded/meta-initramfs",
@@ -97,14 +112,16 @@
                     "meta-openembedded/meta-python",
                     "meta-openembedded/meta-webserver",
                     "meta-openembedded/meta-xfce",
+                    "meta-yocto/meta-poky",
+                    "meta-yocto/meta-yocto-bsp",
                     "meta-oeros",
                     "openembedded-core/meta",
                     "meta-python-ai",
-                    "meta-qt6",
+                    "meta-qt5",
                     "meta-intel-realsense",
                     "meta-ros/meta-ros-common",
                     "meta-ros/meta-ros2",
-                    "meta-ros/meta-ros2-rolling",
+                    "meta-ros/meta-ros2-humble",
                     "meta-virtualization",
                     "meta-zenoh/meta-zenoh",
                     "meta-raspberrypi"
@@ -116,7 +133,7 @@
                 "oe-fragments": [
                     "distro/oeros",
                     "oeros/common",
-                    "oeros/qa/allow-license-format",
+                    "oeros/qa/allow-license-exists",
                     "oeros/allow-commercial-licenses"
                 ],
                 "oe-fragments-one-of": {

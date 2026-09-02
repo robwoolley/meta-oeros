@@ -1,5 +1,5 @@
 {
-    "description": "OpenEmbedded ROS - Master Rolling",
+    "description": "OpenEmbedded ROS - Master Humble",
     "sources": {
         "meta-clang": {
             "git-remote": {
@@ -36,11 +36,11 @@
                 "rev": "master"
             }
         },
-        "meta-qt6": {
+        "meta-qt5": {
             "git-remote": {
-                "uri": "https://code.qt.io/yocto/meta-qt6.git",
-                "branch": "6.11",
-                "rev": "6.11"
+                "uri": "https://github.com/meta-qt5/meta-qt5.git",
+                "branch": "master",
+                "rev": "master"
             }
         },
         "meta-intel-realsense": {
@@ -82,9 +82,9 @@
     "bitbake-setup": {
         "configurations": [
             {
-                "name": "oeros-master-rolling",
-                "description": "OpenEmbedded ROS Master Rolling",
-                "setup-dir-name": "oeros-master-rolling",
+                "name": "oeros-master-humble",
+                "description": "OpenEmbedded ROS Master Humble",
+                "setup-dir-name": "oeros-master-humble",
                 "bb-layers": [
                     "meta-clang",
                     "meta-openembedded/meta-filesystems",
@@ -100,11 +100,11 @@
                     "meta-oeros",
                     "openembedded-core/meta",
                     "meta-python-ai",
-                    "meta-qt6",
+                    "meta-qt5",
                     "meta-intel-realsense",
                     "meta-ros/meta-ros-common",
                     "meta-ros/meta-ros2",
-                    "meta-ros/meta-ros2-rolling",
+                    "meta-ros/meta-ros2-humble",
                     "meta-virtualization",
                     "meta-zenoh/meta-zenoh",
                     "meta-raspberrypi"

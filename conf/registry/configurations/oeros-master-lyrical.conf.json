@@ -1,5 +1,5 @@
 {
-    "description": "OpenEmbedded ROS - Master Rolling",
+    "description": "OpenEmbedded ROS - Master Lyrical",
     "sources": {
         "meta-clang": {
             "git-remote": {
@@ -82,9 +82,9 @@
     "bitbake-setup": {
         "configurations": [
             {
-                "name": "oeros-master-rolling",
-                "description": "OpenEmbedded ROS Master Rolling",
-                "setup-dir-name": "oeros-master-rolling",
+                "name": "oeros-master-lyrical",
+                "description": "OpenEmbedded ROS Master Lyrical",
+                "setup-dir-name": "oeros-master-lyrical",
                 "bb-layers": [
                     "meta-clang",
                     "meta-openembedded/meta-filesystems",
@@ -104,7 +104,7 @@
                     "meta-intel-realsense",
                     "meta-ros/meta-ros-common",
                     "meta-ros/meta-ros2",
-                    "meta-ros/meta-ros2-rolling",
+                    "meta-ros/meta-ros2-lyrical",
                     "meta-virtualization",
                     "meta-zenoh/meta-zenoh",
                     "meta-raspberrypi"
@@ -126,10 +126,6 @@
                             {
                                 "name": "machine/qemux86-64",
                                 "description": "Machine configuration for running an x86-64 system on QEMU"
-                            },
-                            {
-                                "name": "machine/raspberrypi4-64",
-                                "description": "Machine configuration for Raspberry Pi 4 (64-bit)"
                             },
                             {
                                 "name": "machine/raspberrypi5",
