@@ -1,0 +1,7 @@
+# Yocto/bitbake build output: downloads, sstate-cache, tmp/work, etc. This
+# tree grows to hundreds of GB / millions of files, so leaving it untracked
+# and un-ignored makes any "git status" (including VSCode's own background
+# git integration) walk the entire tree on every call -- observed hanging
+# for hours and contributing directly to a host-wide memory/disk-I/O crisis
+# during a bitbake build.
+bitbake-builds/
