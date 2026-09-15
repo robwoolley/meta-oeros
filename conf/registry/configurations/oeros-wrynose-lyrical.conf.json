@@ -1,0 +1,145 @@
+{
+    "description": "OpenEmbedded ROS - Wrynose Lyrical",
+    "sources": {
+        "bitbake": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/bitbake",
+                "branch": "2.18",
+                "rev": "2.18"
+            }
+        },
+        "openembedded-core": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/openembedded-core",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-clang": {
+            "git-remote": {
+                "uri": "https://github.com/kraj/meta-clang.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-intel-realsense": {
+            "git-remote": {
+                "uri": "https://github.com/realsenseai/meta-intel-realsense.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-oeros": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-oeros",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-openembedded": {
+            "git-remote": {
+                "uri": "https://github.com/openembedded/meta-openembedded",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-python-ai": {
+            "git-remote": {
+                "uri": "https://github.com/zboszor/meta-python-ai",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qt6": {
+            "git-remote": {
+                "uri": "https://code.qt.io/yocto/meta-qt6.git",
+                "branch": "6.11",
+                "rev": "6.11"
+            }
+        },
+        "meta-raspberrypi": {
+            "git-remote": {
+                "uri": "https://github.com/agherzan/meta-raspberrypi.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-ros": {
+            "git-remote": {
+                "uri": "https://github.com/ros/meta-ros.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-virtualization": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-virtualization",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-zenoh": {
+            "git-remote": {
+                "uri": "https://github.com/Jarsop/meta-zenoh.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        }
+    },
+    "bitbake-setup": {
+        "configurations": [
+            {
+                "name": "oeros-wrynose-lyrical",
+                "description": "OpenEmbedded ROS Wrynose Lyrical",
+                "setup-dir-name": "oeros-wrynose-lyrical",
+                "bb-layers": [
+                    "openembedded-core/meta",
+                    "meta-openembedded/meta-filesystems",
+                    "meta-openembedded/meta-gnome",
+                    "meta-openembedded/meta-initramfs",
+                    "meta-openembedded/meta-multimedia",
+                    "meta-openembedded/meta-networking",
+                    "meta-openembedded/meta-oe",
+                    "meta-openembedded/meta-perl",
+                    "meta-openembedded/meta-python",
+                    "meta-openembedded/meta-webserver",
+                    "meta-openembedded/meta-xfce",
+                    "meta-clang",
+                    "meta-intel-realsense",
+                    "meta-oeros",
+                    "meta-python-ai",
+                    "meta-qt6",
+                    "meta-raspberrypi",
+                    "meta-ros/meta-ros-common",
+                    "meta-ros/meta-ros2",
+                    "meta-ros/meta-ros2-lyrical",
+                    "meta-virtualization",
+                    "meta-zenoh/meta-zenoh"
+                ],
+                "bb-env-passthrough-additions": ["DL_DIR","SSTATE_DIR"],
+                "oe-fragments-one-of": {
+                    "distro": {
+                        "description": "Target distributions",
+                        "options" : [
+                            { "name": "distro/oeros", "description": "Oeros Reference Distro" }
+                        ]
+                    },
+                    "machine": {
+                        "description": "Target machines",
+                        "options" : [
+                            { "name": "machine/qemux86-64", "description": "Machine configuration for running an x86-64 system on QEMU" },
+                            { "name": "machine/qemuarm64", "description": "Machine configuration for running an ARMv8 system on QEMU" },
+                            { "name": "machine/qemuriscv64", "description": "Machine configuration for running an RISC-V system on QEMU" },
+                            { "name": "machine/genericarm64", "description": "Machine configuration for Arm64 SystemReady IR/ES platforms" },
+                            { "name": "machine/genericx86-64", "description": "Machine configuration for generic x86_64 (64-bit) PCs and servers" },
+                            { "name": "machine/raspberrypi0-2w-64", "description": "Machine configuration for Raspberry Pi Zero 2W (64-bit)" },
+                            { "name": "machine/raspberrypi4-64", "description": "Machine configuration for Raspberry Pi 4 (64-bit)" },
+                            { "name": "machine/raspberrypi5", "description": "Machine configuration for Raspberry Pi 5" }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "version": "1.0"
+}
