@@ -1,0 +1,126 @@
+#!/bin/sh
+#
+# Copyright (c) 2026 Wind River Systems, Inc.
+#
+# Load an OEROS container image from a bitbake deploy directory into the local
+# docker or podman store, or push it to a registry.
+#
+# The OCI layouts image-oci.bbclass produces are not directly consumable by
+# "docker load"; skopeo is what converts between an OCI archive and whatever
+# the local engine wants.
+
+set -eu
+
+usage() {
+    cat <<EOF
+Usage: $0 [options] <image-recipe>
+
+  -d DIR    Deploy directory to read from.
+            Default: \$DEPLOY_DIR_IMAGE, else tmp-<mc>/deploy/images/<machine>
+  -t TAG    Tag in the OCI layout to use. Default: the only tag present.
+  -n NAME   Name to give the image locally. Default: oeros/<recipe minus the
+            oeros-container- prefix>
+  -e ENGINE docker | podman. Default: whichever is found first.
+  -p DEST   Push to this destination instead of loading locally, e.g.
+            registry.example.com/oeros/ros-core:lyrical-genericx86-64
+  -h        This message.
+
+Examples:
+  # Load the x86-64 ros-core container into podman
+  $0 -d build/tmp-oeros-x86-64/deploy/images/genericx86-64 oeros-container-ros-core
+
+  # Push the desktop-full container to a registry
+  $0 -d build/tmp-oeros-x86-64-desktop/deploy/images/genericx86-64 \\
+     -p registry.example.com/oeros/desktop-full:lyrical-genericx86-64 \\
+     oeros-container-desktop-full
+EOF
+}
+
+deploy_dir="${DEPLOY_DIR_IMAGE:-}"
+tag=""
+name=""
+engine=""
+push_dest=""
+
+while getopts "d:t:n:e:p:h" opt; do
+    case "$opt" in
+        d) deploy_dir="$OPTARG" ;;
+        t) tag="$OPTARG" ;;
+        n) name="$OPTARG" ;;
+        e) engine="$OPTARG" ;;
+        p) push_dest="$OPTARG" ;;
+        h) usage; exit 0 ;;
+        *) usage >&2; exit 2 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+if [ $# -ne 1 ]; then
+    usage >&2
+    exit 2
+fi
+recipe="$1"
+
+if ! command -v skopeo >/dev/null 2>&1; then
+    echo "$0: skopeo is required" >&2
+    exit 1
+fi
+
+if [ -z "$deploy_dir" ]; then
+    echo "$0: no deploy directory; pass -d or set DEPLOY_DIR_IMAGE" >&2
+    exit 1
+fi
+
+# image-oci deploys "<recipe>-<tag>-oci.tar" plus a "-oci" directory symlink.
+archive=$(ls -1 "$deploy_dir"/"$recipe"-*-oci.tar 2>/dev/null | grep -v -- '-oci-dir\.tar$' | head -n 1 || true)
+if [ -z "$archive" ]; then
+    echo "$0: no OCI archive for $recipe in $deploy_dir" >&2
+    echo "    (looked for $recipe-*-oci.tar; has the image been built?)" >&2
+    exit 1
+fi
+
+# The tag is the part between the recipe name and the -oci suffix.
+if [ -z "$tag" ]; then
+    tag=$(basename "$archive" | sed -e "s|^$recipe-||" -e 's|-oci\.tar$||')
+fi
+
+if [ -z "$name" ]; then
+    name="oeros/$(echo "$recipe" | sed -e 's|^oeros-container-||')"
+fi
+
+src="oci-archive:$archive:$tag"
+
+if [ -n "$push_dest" ]; then
+    echo "Pushing $archive ($tag) to $push_dest"
+    exec skopeo copy "$src" "docker://$push_dest"
+fi
+
+if [ -z "$engine" ]; then
+    for candidate in podman docker; do
+        if command -v "$candidate" >/dev/null 2>&1; then
+            engine="$candidate"
+            break
+        fi
+    done
+fi
+
+case "$engine" in
+    podman)
+        dest="containers-storage:$name:$tag"
+        ;;
+    docker)
+        dest="docker-daemon:$name:$tag"
+        ;;
+    "")
+        echo "$0: neither podman nor docker found; use -e or -p" >&2
+        exit 1
+        ;;
+    *)
+        echo "$0: unknown engine '$engine'" >&2
+        exit 2
+        ;;
+esac
+
+echo "Loading $archive ($tag) as $name:$tag into $engine"
+skopeo copy "$src" "$dest"
+echo "Done: $name:$tag"
