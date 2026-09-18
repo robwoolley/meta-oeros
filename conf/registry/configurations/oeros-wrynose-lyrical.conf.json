@@ -78,6 +78,13 @@
                 "rev": "wrynose"
             }
         },
+        "meta-yocto": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-yocto",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
         "meta-zenoh": {
             "git-remote": {
                 "uri": "https://github.com/Jarsop/meta-zenoh.git",
@@ -114,6 +121,7 @@
                     "meta-ros/meta-ros2",
                     "meta-ros/meta-ros2-lyrical",
                     "meta-virtualization",
+                    "meta-yocto/meta-yocto-bsp",
                     "meta-zenoh/meta-zenoh"
                 ],
                 "bb-env-passthrough-additions": ["DL_DIR","SSTATE_DIR"],
