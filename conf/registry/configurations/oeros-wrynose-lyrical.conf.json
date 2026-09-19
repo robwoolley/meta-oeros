@@ -239,7 +239,7 @@
                             { "name": "machine/raspberrypi4-64", "description": "Machine configuration for Raspberry Pi 4 (64-bit)" },
                             { "name": "machine/raspberrypi5", "description": "Machine configuration for Raspberry Pi 5" },
 
-                            { "name": "oeros/machine-jetson-orin-nano-devkit-super", "description": "Edge AI: Nvidia Jetson Orin Nano Super -- CUDA/TensorRT/VPI, Isaac ROS" },
+                            { "name": "oeros/machine-jetson-orin-nano-devkit", "description": "Edge AI: Nvidia Jetson Orin Nano (Super nvpmodel by default) -- CUDA/TensorRT/VPI, Isaac ROS" },
                             { "name": "oeros/machine-jetson-agx-orin-devkit", "description": "Edge AI: Nvidia Jetson AGX Orin -- CUDA/TensorRT/VPI, Isaac ROS" },
                             { "name": "oeros/machine-imx8mp-lpddr4-evk", "description": "Edge AI: NXP i.MX 8M Plus -- eIQ, VX delegate on the Vivante NPU" },
                             { "name": "oeros/machine-imx93-11x11-lpddr4x-evk", "description": "Edge AI: NXP i.MX 93 -- eIQ, Ethos-U NPU delegate" },
