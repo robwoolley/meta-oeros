@@ -243,7 +243,7 @@
                             { "name": "oeros/machine-jetson-agx-orin-devkit", "description": "Edge AI: Nvidia Jetson AGX Orin -- CUDA/TensorRT/VPI, Isaac ROS" },
                             { "name": "oeros/machine-imx8mp-lpddr4-evk", "description": "Edge AI: NXP i.MX 8M Plus -- eIQ, VX delegate on the Vivante NPU" },
                             { "name": "oeros/machine-imx93-11x11-lpddr4x-evk", "description": "Edge AI: NXP i.MX 93 -- eIQ, Ethos-U NPU delegate" },
-                            { "name": "oeros/machine-imx95-19x19-evk", "description": "Edge AI: NXP i.MX 95 -- eIQ, Neutron NPU delegate" },
+                            { "name": "oeros/machine-imx95-19x19-lpddr5-evk", "description": "Edge AI: NXP i.MX 95 -- eIQ, Neutron NPU delegate" },
                             { "name": "oeros/machine-qcs6490-rb3gen2-core-kit", "description": "Edge AI: Qualcomm RB3 Gen 2 -- QAIRT/QNN on Hexagon (QIM GStreamer/ROS pipeline pending vendor wrynose support)" },
                             { "name": "oeros/machine-qcs9100-ride-sx", "description": "Edge AI: Qualcomm QCS9100 Ride SX -- QAIRT/QNN on Hexagon (QIM GStreamer/ROS pipeline pending vendor wrynose support)" },
                             { "name": "oeros/machine-am62axx-evk", "description": "Edge AI: TI AM62A -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit" },

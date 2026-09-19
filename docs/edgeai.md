@@ -32,7 +32,7 @@ self-contained: it sets `MACHINE`, pulls in the vendor `.inc`, sets
 | Vendor | MACHINE(s) | Vendor layers | Packagegroup | Accelerator path |
 |---|---|---|---|---|
 | Nvidia | jetson-orin-nano-devkit-super, jetson-agx-orin-devkit | meta-tegra | packagegroup-oeros-edgeai-tegra | CUDA/TensorRT/VPI, Isaac ROS |
-| NXP | imx8mp-lpddr4-evk, imx93-11x11-lpddr4x-evk, imx95-19x19-evk | meta-freescale, meta-imx (meta-imx-bsp/-sdk/-ml) | packagegroup-oeros-edgeai-imx | TFLite VX/Ethos-U/Neutron delegates, ORT VSI-NPU EP, NNStreamer |
+| NXP | imx8mp-lpddr4-evk, imx93-11x11-lpddr4x-evk, imx95-19x19-lpddr5-evk | meta-freescale, meta-imx (meta-imx-bsp/-sdk/-ml) | packagegroup-oeros-edgeai-imx | TFLite VX/Ethos-U/Neutron delegates, ORT VSI-NPU EP, NNStreamer |
 | Qualcomm | qcs6490-rb3gen2-core-kit, qcs9100-ride-sx | meta-qcom, meta-qcom-distro | packagegroup-oeros-edgeai-qcom (**runtime only**) | QAIRT/QNN on Hexagon, TFLite/ORT QNN EP |
 | TI | am62axx-evk, am68-sk, am69-sk | meta-arm, meta-ti (meta-ti-bsp/-extras), meta-edgeai | packagegroup-oeros-edgeai-ti | TIDL on C7x/MMA, TIOVX, edgeai-gst, robotics kit |
 | Intel | intel-corei7-64 | meta-intel, meta-openvino | packagegroup-oeros-edgeai-intel | OpenVINO CPU/iGPU/NPU, ORT OpenVINO EP, compute-runtime |
@@ -77,6 +77,10 @@ As of 2026-09-19, these vendor layers have no branch past `scarthgap`
   the other being `wrynose-6.18.20-2.0.0`). Its `layer.conf` declares
   `LAYERSERIES_COMPAT` through `wrynose` explicitly, so this is a real (not
   backported) compatibility claim.
+- The draft's i.MX 95 MACHINE, `imx95-19x19-evk`, doesn't exist upstream at
+  all (checked both `meta-freescale` and `meta-imx-bsp` on their wrynose-era
+  branches). The real NXP i.MX 95 19x19 EVK machine is
+  `imx95-19x19-lpddr5-evk` (defined in `meta-imx-bsp`) — fixed here.
 - BBFILES_DYNAMIC keys must match each vendor layer's BBFILE_COLLECTIONS. The
   original draft had `imx-ml`; the real `meta-imx-ml` collection name is
   `imx-machine-learning` — fixed in `conf/layer.conf`. Re-verify against each
