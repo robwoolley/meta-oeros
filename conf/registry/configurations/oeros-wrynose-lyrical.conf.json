@@ -36,6 +36,93 @@
                 "rev": "wrynose"
             }
         },
+
+        "meta-tensorflow-lite": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-tensorflow-lite",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-onnxruntime": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-onnxruntime",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+
+        "meta-tegra": {
+            "git-remote": {
+                "uri": "https://github.com/OE4T/meta-tegra",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-freescale": {
+            "git-remote": {
+                "uri": "https://github.com/Freescale/meta-freescale",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-imx": {
+            "git-remote": {
+                "uri": "https://github.com/nxp-imx/meta-imx",
+                "branch": "wrynose-6.18.37-2.1.0",
+                "rev": "wrynose-6.18.37-2.1.0"
+            }
+        },
+        "meta-qcom": {
+            "git-remote": {
+                "uri": "https://github.com/qualcomm-linux/meta-qcom",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qcom-distro": {
+            "git-remote": {
+                "uri": "https://github.com/qualcomm-linux/meta-qcom-distro",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-ti": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-ti",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-arm": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-arm",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-edgeai": {
+            "git-remote": {
+                "uri": "https://git.ti.com/git/edgeai/meta-edgeai",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-intel": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-intel",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-openvino": {
+            "git-remote": {
+                "uri": "https://github.com/intel/meta-openvino",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+
         "meta-openembedded": {
             "git-remote": {
                 "uri": "https://github.com/openembedded/meta-openembedded",
@@ -107,6 +194,22 @@
                     "meta-clang",
                     "meta-intel-realsense",
                     "meta-oeros",
+                    "meta-tensorflow-lite",
+                    "meta-onnxruntime",
+                    "meta-tegra",
+                    "meta-freescale",
+                    "meta-imx/meta-imx-bsp",
+                    "meta-imx/meta-imx-sdk",
+                    "meta-imx/meta-imx-ml",
+                    "meta-qcom",
+                    "meta-qcom-distro",
+                    "meta-ti/meta-ti-bsp",
+                    "meta-ti/meta-ti-extras",
+                    "meta-arm/meta-arm",
+                    "meta-arm/meta-arm-toolchain",
+                    "meta-edgeai",
+                    "meta-intel",
+                    "meta-openvino",
                     "meta-python-ai",
                     "meta-qt6",
                     "meta-raspberrypi",
@@ -116,7 +219,7 @@
                     "meta-virtualization",
                     "meta-zenoh/meta-zenoh"
                 ],
-                "bb-env-passthrough-additions": ["DL_DIR","SSTATE_DIR"],
+                "bb-env-passthrough-additions": ["DL_DIR","SSTATE_DIR","NVIDIA_DEVNET_MIRROR"],
                 "oe-fragments-one-of": {
                     "distro": {
                         "description": "Target distributions",
@@ -134,7 +237,19 @@
                             { "name": "machine/genericx86-64", "description": "Machine configuration for generic x86_64 (64-bit) PCs and servers" },
                             { "name": "machine/raspberrypi0-2w-64", "description": "Machine configuration for Raspberry Pi Zero 2W (64-bit)" },
                             { "name": "machine/raspberrypi4-64", "description": "Machine configuration for Raspberry Pi 4 (64-bit)" },
-                            { "name": "machine/raspberrypi5", "description": "Machine configuration for Raspberry Pi 5" }
+                            { "name": "machine/raspberrypi5", "description": "Machine configuration for Raspberry Pi 5" },
+
+                            { "name": "oeros/machine-jetson-orin-nano-devkit-super", "description": "Edge AI: Nvidia Jetson Orin Nano Super -- CUDA/TensorRT/VPI, Isaac ROS" },
+                            { "name": "oeros/machine-jetson-agx-orin-devkit", "description": "Edge AI: Nvidia Jetson AGX Orin -- CUDA/TensorRT/VPI, Isaac ROS" },
+                            { "name": "oeros/machine-imx8mp-lpddr4-evk", "description": "Edge AI: NXP i.MX 8M Plus -- eIQ, VX delegate on the Vivante NPU" },
+                            { "name": "oeros/machine-imx93-11x11-lpddr4x-evk", "description": "Edge AI: NXP i.MX 93 -- eIQ, Ethos-U NPU delegate" },
+                            { "name": "oeros/machine-imx95-19x19-evk", "description": "Edge AI: NXP i.MX 95 -- eIQ, Neutron NPU delegate" },
+                            { "name": "oeros/machine-qcs6490-rb3gen2-core-kit", "description": "Edge AI: Qualcomm RB3 Gen 2 -- QAIRT/QNN on Hexagon (QIM GStreamer/ROS pipeline pending vendor wrynose support)" },
+                            { "name": "oeros/machine-qcs9100-ride-sx", "description": "Edge AI: Qualcomm QCS9100 Ride SX -- QAIRT/QNN on Hexagon (QIM GStreamer/ROS pipeline pending vendor wrynose support)" },
+                            { "name": "oeros/machine-am62axx-evk", "description": "Edge AI: TI AM62A -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit" },
+                            { "name": "oeros/machine-am68-sk", "description": "Edge AI: TI AM68 -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit" },
+                            { "name": "oeros/machine-am69-sk", "description": "Edge AI: TI AM69 -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit" },
+                            { "name": "oeros/machine-intel-corei7-64", "description": "Edge AI: Intel Core Ultra/Atom -- OpenVINO on CPU/iGPU/NPU" }
                         ]
                     }
                 }
