@@ -34,6 +34,7 @@ self-contained: it sets `MACHINE`, pulls in the vendor `.inc`, sets
 | Nvidia | jetson-orin-nano-devkit (Super nvpmodel by default), jetson-agx-orin-devkit | meta-tegra | packagegroup-oeros-edgeai-tegra | CUDA/TensorRT/VPI, Isaac ROS |
 | NXP | imx8mp-lpddr4-evk, imx93-11x11-lpddr4x-evk, imx95-19x19-lpddr5-evk | meta-freescale, meta-imx (meta-imx-bsp/-sdk/-ml) | packagegroup-oeros-edgeai-imx | TFLite VX/Ethos-U/Neutron delegates, ORT VSI-NPU EP, NNStreamer |
 | Qualcomm | qcs6490-rb3gen2-core-kit, qcs9100-ride-sx | meta-qcom, meta-qcom-distro | packagegroup-oeros-edgeai-qcom (**runtime only**) | QAIRT/QNN on Hexagon, TFLite/ORT QNN EP |
+| Qualcomm (robotics) | iq-9075-evk, iq-8275-evk | meta-qcom, meta-qcom-distro, **meta-qcom-robotics-sdk** | packagegroup-oeros-edgeai-qcom (**runtime + robotics**) | QAIRT/QNN on Hexagon + QIR SDK: Nav2/MoveIt2, QRB-ROS nodes |
 | TI | am62axx-evk, am68-sk, am69-sk | meta-arm, meta-ti (meta-ti-bsp/-extras), meta-edgeai | packagegroup-oeros-edgeai-ti | TIDL on C7x/MMA, TIOVX, edgeai-gst, robotics kit |
 | Intel | intel-corei7-64 | meta-intel, meta-openvino | packagegroup-oeros-edgeai-intel | OpenVINO CPU/iGPU/NPU, ORT OpenVINO EP, compute-runtime |
 
@@ -60,6 +61,62 @@ As of 2026-09-19, these vendor layers have no branch past `scarthgap`
   branch** with a **trimmed** `packagegroup-oeros-edgeai-qcom` (`-runtime`
   only). The QIM GStreamer AI pipeline (`-pipeline`) and QRB ROS 2 offload
   nodes (`-ros`) are deferred with the rest of the QIM SDK.
+  **Update 2026-09-19**: `meta-qcom-hwe`'s `main` branch README now states
+  its development branch has been merged into `meta-qcom` and it is "no
+  longer open for development" — its `kirkstone`/`scarthgap` branches are
+  now frozen QLI 1.x snapshots, so it will likely never get a `wrynose`
+  branch of its own. Confirmed a large chunk of its content (FastCV, CamX
+  camera stack, Adreno/Mesa/Wayland graphics, GStreamer) is now already
+  present directly in `meta-qcom`'s `wrynose` branch under
+  `recipes-multimedia/`, `recipes-graphics/`, and a new `recipes-ml/`
+  (which now ships a real `qairt-sdk` recipe) plus a `dynamic-layers/ai/`
+  collection with a real `onnxruntime-qnn` recipe. **This was not
+  re-audited against `packagegroup-oeros-edgeai-qcom`'s `-runtime` list in
+  this pass** — the package names there (`qnn-sdk`, `qairt-runtime`,
+  `onnxruntime-qnn-ep`) should be re-verified against `meta-qcom`'s actual
+  `recipes-ml/qairt` and `dynamic-layers/ai/recipes-ml/onnxruntime-qnn`
+  recipes (real PNs look like `qairt-sdk` and `onnxruntime-qnn`, not
+  `qairt-runtime`/`onnxruntime-qnn-ep`) as a follow-up. `meta-qcom-qim-
+  product-sdk` itself is unaffected by the hwe merge and remains at
+  `scarthgap`.
+
+## Qualcomm Intelligent Robotics SDK (`meta-qcom-robotics-sdk`)
+
+Separate from (and not blocked like) the QIM SDK above: **QIR SDK**
+(`meta-qcom-robotics-sdk`) has its own `wrynose` branch and is added on
+this branch for its two officially-supported machines, `iq-9075-evk`
+(QCS9100 family) and `iq-8275-evk` (QCS8300 family) — matching the boards
+in the SDK's own `ci/*.yml` kas configs. Wired in as
+`packagegroup-oeros-edgeai-qcom`'s new `-robotics` sub-package, gated on
+an `edgeai-robotics-sdk` `MACHINE_FEATURE` those two machines' fragments
+set (so it doesn't affect `qcs6490-rb3gen2-core-kit`/`qcs9100-ride-sx`,
+which the SDK doesn't officially support).
+
+Packagegroups consumed directly from `meta-qcom-robotics-sdk` (RDEPENDS,
+not re-derived):
+
+| Packagegroup | Contents |
+|---|---|
+| `packagegroup-qcom-ros2` | Core ROS 2 + Nav2 (`navigation2`, `nav2-common`, `nav2-msgs`) + MoveIt2 (`moveit-runtime`, `moveit-planners-chomp`/`-ompl`) + `cv-bridge`/`vision-msgs`/`foxglove-bridge` + demo/example nodes |
+| `packagegroup-robotics-opensource` | QRB-ROS open-source nodes (`qrb-ros-robot-base`, `qrb-ros-amr`, `qrb-ros-follow-path`, `qrb-ros-nn-inference`, `qrb-ros-benchmark`, `qrb-ros-system-monitor`, SLAM/AMR msg types) + community packages (`rplidar-ros2`, `orbbec-camera`, `xsens-mti-ros2-driver`, `cartographer`/`cartographer-ros`, `nav2-bringup`) + `ros-gst-bridge` |
+| `packagegroup-oss-with-prop-deps` | QRB-ROS nodes needing the proprietary QNN/camera stack (`qrb-ros-camera`, `qrb-ros-video`, `qrb-ros-audio-service`, `qrb-ros-colorspace-convert`) + perception sample apps (`sample-hand-detection`, `sample-object-detection`, `sample-object-segmentation`, `sample-resnet101`, `sample-apriltag`, `sample-depth-estimation`, `sample-hrnet-pose-estimation`, `sample-face-detection`) |
+| `packagegroup-robotics-proprietary` | Currently an empty scaffold upstream (no packages listed) — not RDEPENDed on here since it contributes nothing |
+
+Notes:
+- `qrb-ros-nn-inference` (the same package the original draft's
+  hand-rolled `-ros` component guessed at) is real here, and depends on
+  `qairt-sdk` + `tensorflow-lite` at build time — consistent with the
+  `-runtime` packages already in `packagegroup-oeros-edgeai-qcom`.
+- `COMPATIBLE_MACHINE` on `packagegroup-oeros-edgeai-qcom.bb` had to be
+  widened: `qcs6490-rb3gen2-core-kit`/`qcs9100-ride-sx` embed their SOC
+  family in the MACHINE name so the old regex substring-matched them, but
+  `iq-9075-evk`/`iq-8275-evk` don't — they're now listed explicitly.
+- Full device/kernel bring-up (kas `linux-qcom-6.18.yml` etc.) wasn't
+  cross-checked against `meta-qcom`'s own `iq-9075-evk.conf`/
+  `iq-8275-evk.conf`; both machines already exist in `meta-qcom` itself
+  (`recipes-bsp/packagegroups/packagegroup-iq-9075-evk.bb` etc.), so the
+  robotics SDK layers on top of an already-working MACHINE rather than
+  introducing a new one.
 
 ## Things to verify before first build
 
@@ -116,7 +173,8 @@ renamed):
 | `meta-vitis-ai` | `packagegroup-vitis-aiml` | Base ML dependency libs (fmt, glog, gsl, hdf5, eigen, spdlog, xtensor, pybind11) needed to build/run Vitis-AI apps | Good `-dev`/runtime dependency for `packagegroup-oeros-edgeai-xilinx` on `feature/edgeai-amd-xilinx-lag` |
 | `meta-kria` | `packagegroup-kria` | Kria SOM essentials: firmware, `kria-dashboard`, `xmutil`, Jupyter, TPM2 security, board-id data | `packagegroup-oeros-edgeai-xilinx.bb` already lists `xmutil`/`dfx-mgr` individually; RDEPENDS on `packagegroup-kria` as a whole would be more maintainable |
 | `meta-qcom` | `packagegroup-rb3gen2` | RB3 Gen2-specific firmware + the real Hexagon DSP binary package names (see the bug noted above) | Use directly rather than guessing PNs |
-| `meta-qcom-hwe` | `packagegroup-qcom-fastcv`, `packagegroup-qcom-camera`, `packagegroup-qcom-opencv` | SOC_FAMILY-aware (qcm6490/qcs615/qcs9100/qcs8300) camera/FastCV/OpenCV stacks | Relevant once the QIM-SDK follow-up branch is unblocked |
+| `meta-qcom` (formerly `meta-qcom-hwe`, now merged — see "Update 2026-09-19" above) | `packagegroup-qcom-fastcv`, `packagegroup-qcom-camera`, `packagegroup-qcom-opencv` | SOC_FAMILY-aware (qcm6490/qcs615/qcs9100/qcs8300) camera/FastCV/OpenCV stacks | Now potentially usable directly from `meta-qcom` on this (non-lag) branch — not yet re-audited into `packagegroup-oeros-edgeai-qcom.bb`'s `-runtime` |
+| `meta-qcom-robotics-sdk` | `packagegroup-qcom-ros2`, `packagegroup-robotics-opensource`, `packagegroup-oss-with-prop-deps` | Nav2/MoveIt2 + QRB-ROS nodes + community robotics packages | Consumed directly by `packagegroup-oeros-edgeai-qcom.bb`'s `-robotics` sub-package (see the QIR SDK section above) |
 | `meta-edgeai` (TI) | `packagegroup-edgeai-tisdk-addons` | Build/runtime deps for the edgeai/ADAS SDK: cmake, boost, opencv(-dev), numpy, pybind11, meson/ninja | `packagegroup-oeros-edgeai-ti.bb` could RDEPEND on this instead of implicitly assuming these land via `packagegroup-oeros-edgeai-core` |
 
 `meta-tegra` was checked too but exposes only a `nativesdk-packagegroup-cuda-sdk-host`
@@ -129,12 +187,16 @@ reuse there; the individual CUDA/TensorRT/VPI recipe names in
 Surveying each vendor layer's `conf/machine/` for boards not yet in this
 config, marketed at or commonly used for robotics:
 
-- **Qualcomm (meta-qcom)**: `rb3gen2-core-kit` already covers this well, but
-  `qcm6490-idp.conf` and the `rb5`/`rb2`/`qrb2210-rb1-core-kit` family are
-  Qualcomm's own **Robotics RB-series** boards (`packagegroup-rb1.bb`,
-  `-rb2.bb`, `-rb5.bb` all exist in `meta-qcom`) — these are more
-  ROS-community-established (many existing QRB ROS 2 packages target RB5)
-  than the newer RB3 Gen2/QCS9100 devkits already selected.
+- **Qualcomm (meta-qcom)**: `iq-9075-evk`/`iq-8275-evk` are now added
+  (`meta-qcom-robotics-sdk`'s own officially-supported machines — see the
+  QIR SDK section above). Still not added: `qcm6490-idp.conf` and the
+  `rb5`/`rb2`/`qrb2210-rb1-core-kit` family, Qualcomm's older **Robotics
+  RB-series** boards (`packagegroup-rb1.bb`, `-rb2.bb`, `-rb5.bb` all exist
+  in `meta-qcom`) — these are more ROS-community-established (many
+  existing third-party QRB ROS 2 packages target RB5 specifically) than
+  the newer devkits, but `meta-qcom-robotics-sdk`'s own CI doesn't build
+  for them, so it's unverified whether the QIR SDK packagegroups apply
+  cleanly there.
 - **AMD/Xilinx (meta-kria)**: alongside `k26-smk-kr` (KR260, robotics
   starter kit), `k26-smk-kv` (**KV260**, the Vision AI starter kit) is
   arguably more relevant to a perception/inference-focused Edge AI
