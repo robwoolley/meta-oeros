@@ -1,0 +1,84 @@
+From 68d1e54e06bce221ea8fc5a8d5dd846e183baba8 Mon Sep 17 00:00:00 2001
+From: meta-oeros <noreply@example.com>
+Date: Sat, 19 Sep 2026 15:21:00 -0400
+Subject: [PATCH] tests: gate FetchContent(googletest) behind BUILD_TESTING
+
+CMakeLists.txt unconditionally does FetchContent_Declare/MakeAvailable
+of googletest from GitHub at configure time, and unconditionally builds
+the "tests" target against it via enable_testing()/gtest_discover_tests.
+Both attempt a live network git clone during do_configure, which fails
+under BitBake's offline/network-isolated build. Neither block was
+actually gated on BUILD_TESTING despite the "TESTS" section header
+implying it should be.
+
+Wrap both in if(BUILD_TESTING) (standard ament_cmake convention).
+BUILD_TESTING is unset in a plain OE cmake.bbclass build, so both
+blocks are skipped and the offline fetch never runs.
+
+Upstream-Status: Pending
+Signed-off-by: meta-oeros <noreply@example.com>
+---
+ CMakeLists.txt | 38 +++++++++++++++++++++-----------------
+ 1 file changed, 21 insertions(+), 17 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index acd4269..9586e14 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -51,18 +51,20 @@ else()
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O1 -mavx -mavx2 -pthread -g")
+ endif()
+ 
+-include(FetchContent)
+-FetchContent_Declare(
+-  googletest
+-  GIT_REPOSITORY https://github.com/google/googletest.git
+-  GIT_TAG v1.17.0
+-)
+-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+-FetchContent_MakeAvailable(googletest)
+-
+ option(USE_PLOT "Draw plots using MATPLOT++" OFF)
+ 
+-find_package(GTest REQUIRED)
++if(BUILD_TESTING)
++  include(FetchContent)
++  FetchContent_Declare(
++    googletest
++    GIT_REPOSITORY https://github.com/google/googletest.git
++    GIT_TAG v1.17.0
++  )
++  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
++  FetchContent_MakeAvailable(googletest)
++  find_package(GTest REQUIRED)
++endif()
++
+ find_package(ament_cmake REQUIRED)
+ find_package(rclcpp REQUIRED)
+ find_package(std_msgs REQUIRED)
+@@ -128,13 +130,15 @@ configure_target(yolo)
+ configure_target(benchmarkYolo)
+ 
+ # ---------------------- TESTS ----------------------
+-enable_testing()
+-add_executable(tests src/tests.cpp)
+-configure_target(tests)
+-target_link_libraries(tests PRIVATE GTest::gtest_main)
+-
+-include(GoogleTest)
+-gtest_discover_tests(tests)
++if(BUILD_TESTING)
++  enable_testing()
++  add_executable(tests src/tests.cpp)
++  configure_target(tests)
++  target_link_libraries(tests PRIVATE GTest::gtest_main)
++
++  include(GoogleTest)
++  gtest_discover_tests(tests)
++endif()
+ 
+ # ---------------------- INSTALL ----------------------
+ ament_target_dependencies(yolo)
+-- 
+2.47.3
+
