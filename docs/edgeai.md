@@ -4,6 +4,13 @@ Adapted from the `oeros-edgeai-setup.json` bitbake-setup draft for Yocto
 **wrynose** / ROS 2 **lyrical**, and integrated into
 `conf/registry/configurations/oeros-wrynose-lyrical.conf.json`.
 
+> **This branch is `feature/edgeai-intel-robotics-ai-suite`, built on top of
+> `feature/edgeai`.** It adds the Intel Robotics AI Suite (see the dedicated
+> section below) via a **second, separate registry config**,
+> `conf/registry/configurations/oeros-wrynose-jazzy.conf.json` — the suite
+> forced a fork to ROS 2 Jazzy, which cannot share `bb-layers` with the
+> lyrical config (see "Why a separate Jazzy config" below).
+
 ## Layout
 
 ```
@@ -37,10 +44,13 @@ self-contained: it sets `MACHINE`, pulls in the vendor `.inc`, sets
 | Qualcomm (robotics) | iq-9075-evk, iq-8275-evk | meta-qcom, meta-qcom-distro, **meta-qcom-robotics-sdk** | packagegroup-oeros-edgeai-qcom (**runtime + robotics**) | QAIRT/QNN on Hexagon + QIR SDK: Nav2/MoveIt2, QRB-ROS nodes |
 | TI | am62axx-evk, am68-sk, am69-sk | meta-arm, meta-ti (meta-ti-bsp/-extras), meta-edgeai | packagegroup-oeros-edgeai-ti | TIDL on C7x/MMA, TIOVX, edgeai-gst, robotics kit |
 | Intel | intel-corei7-64 | meta-intel, meta-openvino | packagegroup-oeros-edgeai-intel | OpenVINO CPU/iGPU/NPU, ORT OpenVINO EP, compute-runtime |
+| Intel (robotics) | intel-corei7-64 (**Jazzy variant**) | meta-intel, meta-openvino, meta-oeros's own new `recipes-robotics-ai-suite/` | packagegroup-oeros-edgeai-intel (**+ -robotics-ai-suite**) | OpenVINO + Intel Robotics AI Suite: YOLOv8 perception, Nav2 wandering, ADBSCAN — on the separate `oeros-wrynose-jazzy` config |
 
 Common to all: oe-core, meta-oe/meta-python/meta-multimedia, meta-clang,
 meta-ros (meta-ros-common, meta-ros2, **meta-ros2-lyrical**),
 meta-tensorflow-lite, meta-onnxruntime → packagegroup-oeros-edgeai-core + -ros.
+(The Intel-robotics row above is the one exception: it lives on
+`oeros-wrynose-jazzy`, using **meta-ros2-jazzy** instead.)
 
 ## Deferred to `feature/edgeai-amd-xilinx-lag`
 
@@ -118,6 +128,120 @@ Notes:
   robotics SDK layers on top of an already-working MACHINE rather than
   introducing a new one.
 
+## Intel Robotics AI Suite (`packagegroup-oeros-robotics-ai-suite`)
+
+Source: `open-edge-platform/edge-ai-suites`, path `robotics-ai-suite/`
+(a large monorepo bundling many unrelated Intel product suites —
+robotics, education, manufacturing, healthcare, etc. — as one repo).
+**No Yocto layer exists for this suite anywhere** (checked the
+`open-edge-platform` and `intel` GitHub orgs, the Yocto Project Layer
+Index, and GitHub-wide code search); its own release engineering targets
+Ubuntu/APT (`.deb`s built by Docker + per-component Makefiles). This is
+greenfield recipe work, in a new `recipes-robotics-ai-suite/` directory
+(plain `recipes-*`, not `dynamic-layers/`, since these are meta-oeros's
+own new recipes with no third-party-layer-presence problem to gate on —
+`COMPATIBLE_MACHINE` alone satisfies "only available for Intel machines").
+
+**Recipes created with `recipetool create` + manual ROS-ification**, per
+project convention: `recipetool` gets `SRC_URI`/`SRCREV`/a first-pass
+license scan right, then each recipe was hand-corrected to use the
+`ros_distro_${ROS_DISTRO}` / `ros_component` / `ros_${ROS_BUILD_TYPE}`
+pattern (recipetool has no ROS-specific knowledge and defaults to plain
+`inherit cmake`), with `DEPENDS`/`RDEPENDS` fixed to the real meta-ros
+package names (recipetool's CMake `find_package()` guesses are
+approximate) and `LICENSE`/`LIC_FILES_CHKSUM` cross-checked against each
+component's actual `REUSE.toml`/`LICENSES/` directory.
+
+**Why a separate Jazzy config.** The suite officially validates ROS 2
+Jazzy Jalisco / Ubuntu 24.04; this whole distro's default is ROS 2
+"lyrical" (newer than Jazzy in meta-ros's lineage — `navigation2` is
+1.5.1 on lyrical vs. 1.3.13 on jazzy, a real version gap). Rather than
+build the suite against an unverified newer ROS_DISTRO, this integration
+forks to Jazzy — but `bitbake-setup` configs share ONE `bb-layers` list
+across every machine option in a config file, so `meta-ros/meta-ros2-jazzy`
+cannot simply be added alongside `meta-ros/meta-ros2-lyrical` in
+`oeros-wrynose-lyrical.conf.json` without both ROS-distro package sets
+(near-certainly colliding on recipe names like `navigation2`, `rclcpp`)
+landing in the same `BBLAYERS` for every machine in that config, not just
+Intel's. The fix is the new, separate `oeros-wrynose-jazzy.conf.json`,
+scoped to just this Intel path — the first concrete instance of the
+"Recommended new OE configuration templates" idea already in this file.
+Its `oeros/machine-intel-corei7-64-robotics-ai-suite` fragment is also
+where the `edgeai-robotics-ai-suite` `MACHINE_FEATURE` gets set (fragment-
+level gating, same pattern as the Qualcomm QIR SDK above) — the existing
+lyrical `machine-intel-corei7-64.conf` is untouched.
+
+### Initial slice (verified against live upstream source, not just docs)
+
+| Recipe | Upstream path | Status |
+|---|---|---|
+| `nav2-dynamic-msgs_0.0.1.bb` | `ros-navigation/navigation2_dynamic` (separate small repo, Apache-2.0, active) | Clean. Needed because `adbscan_ros2` depends on `nav2_dynamic_msgs`, which doesn't exist in meta-ros at all; its own deps (`sensor_msgs`, `std_msgs`, `unique_identifier_msgs`) are all present in `meta-ros2-jazzy`. |
+| `yolo-msgs_1.0.0.bb` | `.../object-detection/yolov8/src/yolo_msgs` | Clean. |
+| `yolo_1.0.0.bb` | `.../object-detection/yolov8/src/yolo` | **Required a real patch**: `CMakeLists.txt` unconditionally does `FetchContent_Declare/MakeAvailable(googletest)` from GitHub at configure time and unconditionally builds/runs a `tests` target against it — neither gated behind `BUILD_TESTING` despite the section header implying it should be. This is a live network fetch during `do_configure`, which fails under BitBake's offline build. Patched (`files/0001-tests-gate-FetchContent-googletest-behind-BUILD_TES.patch`, generated via real `git format-patch` — a hand-rolled pseudo-git-am header without `diff --git`/`index` lines fails silently with `quilt`'s "can't find file to patch", confusing since `patch -p1` alone accepts it fine) to wrap both blocks in `if(BUILD_TESTING)`, plus `EXTRA_OECMAKE += "-DBUILD_TESTING=OFF"`. Verified: `bitbake -c patch yolo` applies cleanly and the unpacked `CMakeLists.txt` shows the gated blocks. `DEPENDS` needed `openvino-inference-engine` (not `openvino` — `bitbake -e` caught this immediately with "Nothing PROVIDES"). Two vendored single-file headers (`toml.hpp` MIT, `CLI11.hpp` BSD-3-Clause) attributed in `LICENSE`/`LIC_FILES_CHKSUM` alongside the component's own Apache-2.0. |
+| `adbscan-ros2_2.2.0.bb` | `.../adbscan/ROS2_node` | Clean once `nav2-dynamic-msgs` existed. Apache-2.0; upstream description literally says "Intel-patented" (patent status doesn't affect OSS licensing, just unusual phrasing to see in redistributed code). |
+| `wandering-app_2.3.0.bb` | `.../wandering/wandering/wandering` | Clean — zero gaps, all deps (`nav2-msgs`, `nav2-util`, `nav2-costmap-2d`, etc.) individually confirmed present in `meta-ros2-jazzy`. Best recipe to validate the whole pattern with first. |
+| `segmentation-realsense-tutorial_2.0.0.bb` | `.../object-detection/segmentation_realsense_tutorial` | Clean — launch/rviz/param bundle, no compiled code, zero `exec_depend`s at all in its `package.xml`. |
+| `object-detection-tutorial_2.0.0.bb` | `.../object-detection/object_detection_tutorial` | **BLOCKED, real gap, not a bug in this recipe**: its `package.xml` declares `<exec_depend>openvino-node</exec_depend>`. This package does not exist anywhere in this distro's layers, **and it does not exist in the real upstream `intel/ros2_openvino_toolkit` repo either** (checked both its `master` and `ros2` branches — the actual packages there are `openvino_wrapper_lib`, `openvino_msgs`, `openvino_param_lib`, `openvino_people_msgs`; no `openvino_node`). This looks like a genuine naming-drift bug in Intel's own `package.xml`, not something resolvable by further searching — flagged here rather than guessed at. `bitbake -e object-detection-tutorial` fails with `Nothing RPROVIDES 'openvino-node'`, confirming the recipe faithfully reflects a currently-unsatisfiable real dependency. Isolated into its own `-tutorials` sub-package in `packagegroup-oeros-robotics-ai-suite` so this gap doesn't block `-perception`/`-navigation`. |
+
+All seven verified individually with `bitbake -e <recipe>` (parses cleanly,
+`DEPENDS`/`RDEPENDS` resolve) except the documented `object-detection-tutorial`
+gap. **A related, previously-undetected pre-existing bug surfaced trying to
+resolve the whole `packagegroup-oeros-edgeai-intel` for the first time**:
+its existing (not new) `-runtime` sub-package RDEPENDS on
+`openvino-model-optimizer`, which doesn't exist — modern OpenVINO (2025.x)
+removed the standalone Model Optimizer tool in favor of `ovc` (visible in
+`openvino-inference-engine`'s own `-python3` sub-package,
+`${bindir}/ovc`). Its `-ros` sub-package has the same class of bug:
+`ros2-openvino-toolkit` is the *repo name*, not any package within it.
+**Both are out of scope for this pass** (pre-existing, unrelated to the
+suite) — flagged here rather than silently fixed, since fixing them
+properly means sourcing new recipes for `intel/ros2_openvino_toolkit`'s
+real packages, a separate body of work.
+
+**A note on `recipetool` and this specific monorepo**: `edge-ai-suites`
+has `.gitmodules` at its root, so `recipetool` auto-upgrades every fetch
+to `gitsm://` and recursively clones *all* submodules repo-wide —
+including entirely unrelated products bundled in the same monorepo (e.g.
+`education-ai-suite/ai-teaching-assistant/.../datumaro`,
+`pipelines/gr00t-n1d7-ov/isaac-gr00t/.../LIBERO`, `.../ManiSkill2_real2sim`
+several directories deep in an unrelated humanoid-robot-learning pipeline).
+`--src-subdir` only scopes where `recipetool` *looks* for build files
+afterward, not what it fetches. This made `object-detection-tutorial`'s
+and `segmentation-realsense-tutorial`'s `recipetool create` runs balloon
+to 10+ minutes fetching gigabytes of irrelevant ML framework submodules,
+and one run had to be killed (own local subprocess only) after it started
+cloning `LIBERO`; `segmentation-realsense-tutorial` was hand-written
+instead once its trivial `package.xml` (zero dependencies) was already
+known. Worth keeping in mind for any future component pulled from this
+same monorepo.
+
+### Explicitly out of scope (documented, not silently dropped)
+
+- **Tier B** (near-term follow-up, each blocked on one small verification):
+  `groundfloor` (BSD-3-Clause file not reflected in `REUSE.toml`),
+  `fast-mapping` (same, plus an unverified `safestringlib` dependency),
+  `ros-kpi` (different recipe idiom — Python/hatchling, not
+  `ros_ament_cmake`), `its-planner` (vendors its own `navigation2` as a
+  git submodule instead of using the distro's, an architecturally
+  different and higher-risk case).
+- **Tier C** (not evaluated this pass): `collaborative-slam` (bundles
+  third-party SLAM libraries directly, higher licensing-audit burden),
+  `multicam-demo` (Docker-only, no ROS/CMake packaging exists to
+  convert), `simulations` (Gazebo tutorials, not a deployable runtime
+  component), `robot-vision-control` (Docker/devcontainer-only,
+  pre-release, no `package.xml`/`CMakeLists.txt` anywhere), and all 15
+  `pipelines/*` dirs (`act-sample`, `diffusion-policy-ov`,
+  `fast-lio2-demo`, `fast-livo2-demo`, `gr00t-n1d7-ov`, `gr00t-wbc`,
+  `idp3-ov`, `llm-robotics-demo`, `mpc-demo`, `openclaw-agenticros-demo`,
+  `orb-slam3-sample`, `pi05-rtc-ov`, `point-lio-demo`, `rdt-ov`,
+  `vla-pi0.5-openvino` — vendor large third-party ML/SLAM/robot-learning
+  repos as submodules, GPLv3 ORB-SLAM3 among them, none licensed or
+  evaluated here).
+- Intel oneAPI Base Toolkit: no existing Yocto layer provides it, and the
+  initial-slice components don't need it (`yolo` uses plain
+  `find_package(OpenVINO)`/`find_package(OpenCV)`, no oneAPI compiler) —
+  not added as a new layer dependency.
+
 ## Things to verify before first build
 
 - `meta-tensorflow-lite` and `meta-onnxruntime`: the draft config pointed at
@@ -158,6 +282,28 @@ Notes:
   `hexagon-dsp-binaries-thundercomm-rb3gen2-adsp` /
   `-cdsp`. `hexagon-dsp-binaries` as a bare name was not found in
   `meta-qcom`; verify the real PN before building QCS6490.
+- (this branch) `object-detection-tutorial`'s `openvino-node` dependency
+  doesn't exist anywhere, including in the real upstream
+  `intel/ros2_openvino_toolkit` project — see the Intel Robotics AI Suite
+  section for the full investigation.
+- (this branch) `packagegroup-oeros-edgeai-intel`'s pre-existing `-runtime`
+  and `-ros` sub-packages RDEPEND on `openvino-model-optimizer` (removed
+  from modern OpenVINO in favor of `ovc`) and `ros2-openvino-toolkit`
+  (a repo name, not a package) respectively — both confirmed broken while
+  verifying this branch's new `-robotics-ai-suite` addition, both
+  pre-existing and out of scope to fix here.
+- `bitbake-setup`'s `DL_DIR`/`SSTATE_DIR` `bb-env-passthrough-additions`
+  only take effect if those env vars are exported in the shell that
+  actually runs `bitbake` (not just at `bitbake-setup init` time) —
+  otherwise `site.conf`'s `?=` defaults win and everything lands under
+  `bitbake-builds/.bitbake-setup-downloads`/`.sstate-cache` instead of the
+  shared `/opt/yocto/downloads`/`/opt/yocto/sstate-cache`. Set them
+  directly in `site.conf` instead of relying on env export per-invocation.
+- `recipetool create` against a monorepo with `.gitmodules` at its root
+  (like `edge-ai-suites`) will recursively clone *every* submodule
+  repo-wide, not just ones under `--src-subdir` — budget for this or
+  hand-write trivially-simple recipes instead once the real
+  `package.xml`/`CMakeLists.txt` content is already known.
 
 ## Upstream packagegroups worth reusing (found while integrating)
 

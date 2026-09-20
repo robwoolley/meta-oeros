@@ -1,0 +1,148 @@
+{
+    "description": "OpenEmbedded ROS - Wrynose Jazzy (Intel Robotics AI Suite). A separate config from oeros-wrynose-lyrical because bitbake-setup bb-layers are shared across every machine option in one config file -- meta-ros2-jazzy cannot coexist with meta-ros2-lyrical in the same BBLAYERS without recipe-provider collisions (both declare e.g. navigation2, rclcpp). Intel-only; see docs/edgeai.md.",
+    "sources": {
+        "bitbake": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/bitbake",
+                "branch": "2.18",
+                "rev": "2.18"
+            }
+        },
+        "openembedded-core": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/openembedded-core",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-clang": {
+            "git-remote": {
+                "uri": "https://github.com/kraj/meta-clang.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-intel-realsense": {
+            "git-remote": {
+                "uri": "https://github.com/realsenseai/meta-intel-realsense.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-oeros": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-oeros",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+
+        "meta-tensorflow-lite": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-tensorflow-lite",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-onnxruntime": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-onnxruntime",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+
+        "meta-intel": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-intel",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-openvino": {
+            "git-remote": {
+                "uri": "https://github.com/intel/meta-openvino",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+
+        "meta-openembedded": {
+            "git-remote": {
+                "uri": "https://github.com/openembedded/meta-openembedded",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-ros": {
+            "git-remote": {
+                "uri": "https://github.com/ros/meta-ros.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-virtualization": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-virtualization",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qt6": {
+            "git-remote": {
+                "uri": "https://code.qt.io/yocto/meta-qt6.git",
+                "branch": "6.11",
+                "rev": "6.11"
+            }
+        }
+    },
+    "bitbake-setup": {
+        "configurations": [
+            {
+                "name": "oeros-wrynose-jazzy",
+                "description": "OpenEmbedded ROS Wrynose Jazzy -- Intel Edge AI + Robotics AI Suite",
+                "setup-dir-name": "oeros-wrynose-jazzy",
+                "bb-layers": [
+                    "openembedded-core/meta",
+                    "meta-openembedded/meta-filesystems",
+                    "meta-openembedded/meta-multimedia",
+                    "meta-openembedded/meta-networking",
+                    "meta-openembedded/meta-oe",
+                    "meta-openembedded/meta-perl",
+                    "meta-openembedded/meta-python",
+                    "meta-clang",
+                    "meta-intel-realsense",
+                    "meta-oeros",
+                    "meta-tensorflow-lite",
+                    "meta-onnxruntime",
+                    "meta-intel",
+                    "meta-openvino",
+                    "meta-ros/meta-ros-common",
+                    "meta-ros/meta-ros2",
+                    "meta-ros/meta-ros2-jazzy",
+                    "meta-virtualization",
+                    "meta-qt6"
+                ],
+                "bb-env-passthrough-additions": ["DL_DIR","SSTATE_DIR"],
+                "oe-fragments-one-of": {
+                    "distro": {
+                        "description": "Target distributions",
+                        "options" : [
+                            { "name": "distro/oeros", "description": "Oeros Reference Distro" }
+                        ]
+                    },
+                    "machine": {
+                        "description": "Target machines",
+                        "options" : [
+                            { "name": "machine/qemux86-64", "description": "Machine configuration for running an x86-64 system on QEMU" },
+                            { "name": "machine/genericx86-64", "description": "Machine configuration for generic x86_64 (64-bit) PCs and servers" },
+
+                            { "name": "oeros/machine-intel-corei7-64-robotics-ai-suite", "description": "Edge AI + robotics: Intel Core Ultra/Atom -- OpenVINO on CPU/iGPU/NPU + Intel Robotics AI Suite (YOLOv8/OpenVINO perception, Nav2 wandering demo, ADBSCAN clustering)" }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "version": "1.0"
+}
