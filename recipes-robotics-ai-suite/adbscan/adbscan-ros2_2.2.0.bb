@@ -26,6 +26,12 @@ ROS_TEST_DEPENDS = "ament-cmake-gtest"
 DEPENDS = "${ROS_BUILD_DEPENDS} ${ROS_BUILDTOOL_DEPENDS}"
 RDEPENDS:${PN} += "${ROS_EXEC_DEPENDS}"
 
+# CMakeLists.txt find_package(TBB REQUIRED)s and links TBB::tbb directly
+# for the adaptive/parallel clustering implementation -- a real, genuine
+# dependency (not a ROS package, hence not in package.xml or ROS_*_DEPENDS;
+# provided by meta-openembedded's tbb recipe).
+DEPENDS += "tbb"
+
 EXTRA_OECMAKE += "-DBUILD_TESTING=OFF"
 
 ROS_BUILD_TYPE = "ament_cmake"
