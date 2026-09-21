@@ -72,3 +72,44 @@ OEROS_CONTAINER_TAG ?= "${ROS_DISTRO}-${MACHINE}"
 # the kernel, where linux-dummy satisfies those too, by actually providing
 # virtual/kernel rather than making it unresolvable.
 PREFERRED_PROVIDER_virtual/kernel = "linux-dummy"
+
+# linux-dummy's PACKAGES_DYNAMIC only satisfies the *wildcard* kernel-module-*
+# family. It has no effect on a package that is itself a real, specifically-
+# named out-of-tree kernel module recipe -- do_rootfs[recrdeptask] still
+# schedules a genuine build for one of those the moment anything reachable
+# RDEPENDS/RRECOMMENDS on it by name.
+#
+# ROS 2's tracetools (ros2_tracing) RDEPENDS:${PN} on lttng-tools for runtime
+# LTTng userspace tracing -- correctly: lttng-tools itself is pure userspace
+# and builds fine here. But openembedded-core's lttng-tools recipe also sets
+# RDEPENDS:${PN}-ptest += "... ${LTTNGMODULES} ...", where LTTNGMODULES
+# (recipes-kernel/lttng/lttng-platforms.inc) expands to "lttng-modules" -- a
+# real recipe that inherits module-base.bbclass and needs a fully configured
+# kernel source tree at STAGING_KERNEL_DIR (work-shared/<machine>/
+# kernel-source) to actually compile against, which linux-dummy never
+# creates. IMAGE_FEATURES here has no "ptest-pkgs", so lttng-tools-ptest is
+# never installed -- but the same conservative recrdeptask closure that
+# ignored KERNELDEPMODDEPEND (see oeros-container-image.inc) still builds
+# every package a reachable recipe produces, ptest included, so it gets
+# scheduled anyway and make-mod-scripts:do_configure fails looking for a
+# kernel tree that was never going to exist.
+RDEPENDS:lttng-tools-ptest:remove = "lttng-modules"
+
+# meta-ros's recipe generator (superflore) resolves each rosdep key against
+# rosdep's own per-distro package lists; when a key has no "openembedded:"
+# mapping there, it emits the literal marker
+# "${ROS_UNRESOLVED_DEP-<name>}" as a bare guess rather than a real lookup.
+# python3-osrf-pycommon is one such key (see meta-ros2-lyrical/generated-
+# recipes/launch-ros/launch-ros_0.29.8-1.bb ROS_EXEC_DEPENDS): opkg then
+# looks for an ipk package literally named "python3-osrf-pycommon", but the
+# recipe that actually builds it (generated-recipes/osrf-pycommon/
+# osrf-pycommon_2.1.7-3.bb) packages itself as plain "osrf-pycommon" --
+# ROS_CN/ROS_BPN "osrf_pycommon" with ROS_BUILD_TYPE "ament_python" never
+# gets a python3- prefix. Rather than hand-edit a "DO NOT EDIT" generated
+# recipe that superflore will just regenerate, alias the name it actually
+# produces to the one launch-ros asks for. (Other ROS_UNRESOLVED_DEP names
+# exist in this layer -- see `grep -rl "ROS_UNRESOLVED_DEP-"
+# layers/meta-ros/meta-ros2-lyrical/generated-recipes/` -- but they belong
+# to packages nothing in base/ros-core reaches; fix each as it actually
+# surfaces rather than guessing all of them up front.)
+RPROVIDES:osrf-pycommon += "python3-osrf-pycommon"
