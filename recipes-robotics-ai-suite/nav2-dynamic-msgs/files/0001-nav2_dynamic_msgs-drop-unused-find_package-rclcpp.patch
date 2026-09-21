@@ -1,0 +1,31 @@
+From 89d2fe28eb73015ec7a797da0d2b907f6d8e9c03 Mon Sep 17 00:00:00 2001
+From: Rob Woolley <rob@robertwoolley.com>
+Date: Sun, 20 Sep 2026 20:52:18 -0400
+Subject: [PATCH] nav2_dynamic_msgs: drop unused find_package(rclcpp)
+
+This is a pure message-only package (rosidl_generate_interfaces, zero
+C++ source files); rclcpp is unused ros2-pkg-create boilerplate that
+was never removed, and forces every downstream consumer to build the
+entire rclcpp client library for no reason.
+
+Upstream-Status: Pending
+Signed-off-by: Rob Woolley <rob@robertwoolley.com>
+---
+ CMakeLists.txt | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1d3893e..fc40d28 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -20,7 +20,6 @@ find_package(ament_cmake REQUIRED)
+ # uncomment the following section in order to fill in
+ # further dependencies manually.
+ # find_package(<dependency> REQUIRED)
+-find_package(rclcpp REQUIRED)
+ find_package(rosidl_default_generators REQUIRED)
+ find_package(builtin_interfaces REQUIRED)
+ find_package(std_msgs REQUIRED)
+-- 
+2.47.3
+

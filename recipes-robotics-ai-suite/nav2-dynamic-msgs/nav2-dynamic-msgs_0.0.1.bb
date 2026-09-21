@@ -6,7 +6,15 @@ HOMEPAGE = "https://github.com/ros-navigation/navigation2_dynamic"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://../LICENSE;md5=86d3f3a95c324c9479bd8986968f4327"
 
-SRC_URI = "git://github.com/ros-navigation/navigation2_dynamic.git;protocol=https;branch=master"
+# CMakeLists.txt has an unconditional find_package(rclcpp REQUIRED) left
+# over from ros2-pkg-create boilerplate: this package is message-only
+# (rosidl_generate_interfaces, zero C++ source), rclcpp is never used, and
+# the call fails without it since it's not in package.xml's own depends.
+# Patched out rather than adding rclcpp as a real DEPENDS -- pulling in the
+# whole client library for an unused find_package() call would be wrong.
+SRC_URI = "git://github.com/ros-navigation/navigation2_dynamic.git;protocol=https;branch=master \
+    file://0001-nav2_dynamic_msgs-drop-unused-find_package-rclcpp.patch \
+"
 SRCREV = "e1b0d920fa309c7eb072524b00de7ee12e21076e"
 PV = "0.0.1+git"
 
