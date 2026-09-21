@@ -20,9 +20,21 @@ inherit image-oci
 IMAGE_FEATURES = ""
 IMAGE_LINGUAS = ""
 
-# No kernel is built for these images, so the usual image-to-kernel dependency
-# must not be asserted.
-IMAGE_CONTAINER_NO_DUMMY = "1"
+# NOT setting IMAGE_CONTAINER_NO_DUMMY here is deliberate. "container" in
+# IMAGE_FSTYPES (above) makes image.bbclass auto-inherit oe-core's
+# image-container.bbclass, whose whole job is a parse-time guard: fail with
+# a clear message if PREFERRED_PROVIDER_virtual/kernel isn't "linux-dummy",
+# unless IMAGE_CONTAINER_NO_DUMMY = "1" says that's intentional. An earlier
+# version of this file set NO_DUMMY = "1" -- copied from meta-virtualization's
+# container-base.bb, where it belongs because that recipe sometimes *does*
+# want a real kernel bound -- which silenced that exact guard for images that
+# never do, for the whole time it took to separately rediscover, the hard
+# way, that PREFERRED_PROVIDER_virtual/kernel needed to be linux-dummy (now
+# set in conf/include/oeros-container-mc.inc). Leaving the opt-out unset
+# keeps the guard live: if some future image here ever stops inheriting that
+# multiconfig include, or something overrides the provider back, parsing
+# fails immediately with an actionable message instead of silently
+# scheduling a full kernel build again.
 
 # image-oci finds the parent's layout at
 #     ${DEPLOY_DIR_IMAGE}/${OCI_BASE_IMAGE}-${OCI_BASE_IMAGE_TAG}-oci
@@ -66,6 +78,42 @@ OCI_IMAGE_LABELS ?= " \
 # base-files and base-passwd carry postinstalls that invoke /bin/sh, so the
 # rootfs needs either a real shell or the explicit dummy provider.
 CONTAINER_SHELL ?= "${@bb.utils.contains('PACKAGE_EXTRA_ARCHS', 'container-dummy-provides', 'container-dummy-provides', 'busybox', d)}"
+
+# image.bbclass unconditionally adds do_rootfs[depends] +=
+# "${KERNELDEPMODDEPEND}", which defaults to "virtual/kernel:do_packagedata"
+# -- there to populate depmod data in PKGDATA_DIR for images that install
+# kernel modules. None of these images do (no init system, no kernel at
+# all), but the dependency is unconditional: on genericx86-64/genericarm64
+# it resolved virtual/kernel to linux-yocto and pulled a full do_fetch/
+# do_compile of the upstream kernel (a fresh git-mirror clone of the entire
+# git.yoctoproject.org/linux-yocto history, then a real kernel build) into
+# what should be a kernel-free container image. image.bbclass's own comment
+# on KERNELDEPMODDEPEND names this exact case ("if you're building small
+# initramfs image ... you probably don't want this dependency") and the
+# empty override below is its documented way out.
+#
+# KERNELDEPMODDEPEND alone was not enough: iptables (still reaching these
+# images through a source not yet traced) independently pulls linux-yocto
+# back in through its own RRECOMMENDS:${PN} on iptables-modules and a dozen
+# kernel-module-* packages, in openembedded-core's iptables_1.8.13.bb.
+#
+# Neither NO_RECOMMENDATIONS nor BAD_RECOMMENDATIONS touches this, and for
+# the same reason: both are consumed only in
+# oe/package_manager/{ipk,rpm}/*.py and rootfs_deb.bbclass -- the
+# install-time code that decides what the package manager actually writes
+# into the final rootfs. Neither one appears anywhere in lib/oe/rootfs.py,
+# which is what computes do_rootfs[recrdeptask]'s build set; by the time
+# either flag is consulted, BitBake has already conservatively built
+# everything reachable through RDEPENDS and RRECOMMENDS regardless. A
+# dry run inspects exactly that build-time task graph, which is why both
+# looked like they should work and neither did.
+#
+# The actual, working fix is in conf/include/oeros-container-mc.inc:
+# RRECOMMENDS:iptables:remove, which changes the RRECOMMENDS value itself
+# at parse time -- the only place upstream of do_rootfs[recrdeptask] that
+# can keep a recommended package's build out of the graph in the first
+# place, rather than merely out of the finished image.
+KERNELDEPMODDEPEND = ""
 
 # Nothing boots in a container, so the volatile directories that would normally
 # be created by the init scripts have to be created here instead.  The :remove

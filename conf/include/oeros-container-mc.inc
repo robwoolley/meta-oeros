@@ -37,3 +37,38 @@ OCI_IMAGE_BACKEND = "umoci"
 # looks for in the OCI layout of its parent.  Keeping these equal is what makes
 # OCI_BASE_IMAGE chaining resolve -- see recipes-containers/images/oeros-container-image.inc.
 OEROS_CONTAINER_TAG ?= "${ROS_DISTRO}-${MACHINE}"
+
+# A long list of ordinary packages -- confirmed so far: iptables (both its
+# own RRECOMMENDS:${PN} and an extra ~14 kernel-module-* tokens appended by
+# meta-virtualization/recipes-extended/iptables/iptables-meta-virtualization.inc,
+# pulled in because this layer inherits image-oci from that same layer),
+# systemd, util-linux -- carry RRECOMMENDS on kernel-module-* packages, which
+# linux-yocto's kernel-module package split genuinely provides, so
+# do_rootfs[recrdeptask] conservatively builds the entire kernel (a fresh
+# git-mirror clone of the whole upstream git.yoctoproject.org/linux-yocto
+# history, then a real build) to have those recommendations available,
+# regardless of KERNELDEPMODDEPEND = "" above (see oeros-container-image.inc)
+# or NO_RECOMMENDATIONS/BAD_RECOMMENDATIONS (both install-time-only, and so
+# incapable of affecting this build-time task graph at all).
+#
+# Removing the RRECOMMENDS tokens package by package -- confirmed to actually
+# work once the override syntax was corrected (VARIABLE:override:operation,
+# not VARIABLE:operation:override; the packaging-variable rename from
+# RRECOMMENDS:${PN} silently ignores the reversed form) -- does not scale:
+# every additional image in this series (perception/simulation/desktop pull
+# in hundreds more packages) is likely to surface more of them.
+#
+# openembedded-core already ships the purpose-built answer:
+# recipes-kernel/linux/linux-dummy.bb, "to be selected as the preferred
+# provider for virtual/kernel to satisfy dependencies for situations where
+# you wish to build the kernel externally from the build system." Its
+# PACKAGES_DYNAMIC += "^kernel-module-.*" (plus kernel-image-*,
+# kernel-firmware-*) means it satisfies ANY kernel-module-* package name any
+# recipe ever asks for, present or future, without enumerating them -- and
+# every one of its tasks is a no-op ("do_compile() { : }" and so on), so it
+# costs nothing to build. This is a strictly better fix than BBMASKing
+# linux-yocto out: masking left 'Nothing PROVIDES virtual/kernel' fatal
+# errors for anything with a genuine hard (not RRECOMMENDS) dependency on
+# the kernel, where linux-dummy satisfies those too, by actually providing
+# virtual/kernel rather than making it unresolvable.
+PREFERRED_PROVIDER_virtual/kernel = "linux-dummy"
