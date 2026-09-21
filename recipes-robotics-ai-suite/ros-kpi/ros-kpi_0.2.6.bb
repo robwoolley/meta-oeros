@@ -12,7 +12,11 @@ on an actual embedded robot image, versus being a companion tool for a \
 developer's workstation, is a real scoping question not resolved here."
 HOMEPAGE = "https://github.com/open-edge-platform/edge-ai-suites/tree/main/robotics-ai-suite/components/ros-kpi"
 LICENSE = "Apache-2.0"
-LIC_FILES_CHKSUM = "file://LICENSES/Apache-2.0.txt;md5=c846ebb396f8b174b10ded4771514fcc"
+# ros-kpi's own LICENSES/Apache-2.0.txt is missing a trailing newline
+# (otherwise byte-identical to every other component's copy in this
+# monorepo), so it has a different checksum from the one shared elsewhere
+# in this integration -- confirmed via diff, not a different license text.
+LIC_FILES_CHKSUM = "file://LICENSES/Apache-2.0.txt;md5=ba963850f6731c74878fe839d227e675"
 
 SRC_URI = "git://github.com/open-edge-platform/edge-ai-suites.git;protocol=https;branch=main"
 SRCREV = "e67ecbab6ccce6ca89675b22d784bdb8b430ae3e"
@@ -24,8 +28,16 @@ inherit python_hatchling
 
 # rclpy is required (per upstream's own pyproject.toml comment) but must
 # come from ROS 2 system packages, not pip -- meta-ros, not PyPI.
+# bash: src/ bundles a suite of "<component>_run.sh" #!/bin/bash launcher
+# scripts (adbscan_run.sh, fastmapping_run.sh, wandering_run.sh, etc.) that
+# ros-kpi's own benchmarking tooling uses to run/measure each Robotics AI
+# Suite demo -- real, legitimate on-target scripts, not a packaging
+# mistake (confirmed: do_package_qa's file-rdeps check caught the missing
+# runtime dependency on a real bitbake -c populate_lic/full-build run,
+# which bitbake -c compile alone never exercises).
 RDEPENDS:${PN} += " \
     rclpy \
+    bash \
     python3-numpy \
     python3-psutil \
     python3-prometheus-client \
