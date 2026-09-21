@@ -11,9 +11,15 @@ LIC_FILES_CHKSUM = " \
 
 DEPENDS = "openvino-inference-engine opencv"
 
+# CMakeLists.txt clobbers find_package(OpenCV)'s correct result with
+# hardcoded /usr/local paths (boilerplate for a manually source-built
+# OpenCV) -- fails do_compile under cross-compilation with GCC's
+# poison-system-directories check ("include location ... is unsafe for
+# cross-compilation"). Patched out; OpenCV_LIB_DIR was dead code anyway.
 SRC_URI = " \
     git://github.com/open-edge-platform/edge-ai-suites.git;protocol=https;branch=main \
     file://0001-tests-gate-FetchContent-googletest-behind-BUILD_TES.patch;striplevel=1 \
+    file://0001-yolo-stop-clobbering-find_package-OpenCV-with-hardco.patch;striplevel=1 \
 "
 SRCREV = "e67ecbab6ccce6ca89675b22d784bdb8b430ae3e"
 PV = "1.0.0+git"

@@ -1,0 +1,39 @@
+From e1f83321123854c887f8b568d1820b7affa0a2db Mon Sep 17 00:00:00 2001
+From: Rob Woolley <rob@robertwoolley.com>
+Date: Mon, 21 Sep 2026 06:16:56 -0400
+Subject: [PATCH] yolo: stop clobbering find_package(OpenCV) with hardcoded
+ /usr/local paths
+
+CMakeLists.txt correctly calls find_package(OpenCV REQUIRED), then
+immediately overwrites OpenCV_INCLUDE_DIRS/OpenCV_LIB_DIR with hardcoded
+/usr/local paths -- boilerplate left over from a manually source-built,
+installed-to-/usr/local OpenCV setup. Under BitBake's cross-compilation
+sysroot this points includes at a nonexistent (or host-contaminating)
+path, and GCC's poison-system-directories hardening check turns it into
+a hard error: "include location /usr/local/include/opencv2 is unsafe
+for cross-compilation". OpenCV_LIB_DIR is never referenced anywhere
+else in the file (dead code). Removing both restores the correct,
+sysroot-relative values find_package(OpenCV) already provides.
+
+Upstream-Status: Pending
+Signed-off-by: Rob Woolley <rob@robertwoolley.com>
+---
+ CMakeLists.txt | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9586e1429..edd1d81d3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -79,8 +79,6 @@ find_package(yolo_msgs REQUIRED)
+ find_package(OpenVINO REQUIRED)
+ find_package(OpenCV REQUIRED)
+ 
+-set(OpenCV_INCLUDE_DIRS /usr/local/include /usr/local/include/opencv2)
+-set(OpenCV_LIB_DIR /usr/local/lib)
+ 
+ # ---------------------- EXECUTABLES ----------------------
+ add_executable(yolo src/YoloMain.cpp)
+-- 
+2.47.3
+
