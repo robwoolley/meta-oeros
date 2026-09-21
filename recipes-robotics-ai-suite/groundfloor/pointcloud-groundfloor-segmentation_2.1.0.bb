@@ -1,9 +1,15 @@
 SUMMARY = "Efficient groundfloor segmentation for 3D pointclouds"
 HOMEPAGE = "https://github.com/open-edge-platform/edge-ai-suites/tree/main/robotics-ai-suite/components/groundfloor"
 LICENSE = "Apache-2.0 & BSD-3-Clause"
+# LICENSES/ lives directly under robotics-ai-suite/components/groundfloor/,
+# one level up from S (which descends one extra level into the nested
+# pointcloud_groundfloor_segmentation/ source dir) -- not two. Confirmed
+# via a real do_populate_lic failure: `bitbake -c compile` alone never
+# exercises do_populate_lic, so a wrong relative path here went undetected
+# until a full `bitbake <recipe>` build actually ran it.
 LIC_FILES_CHKSUM = " \
-    file://../../LICENSES/Apache-2.0.txt;md5=c846ebb396f8b174b10ded4771514fcc \
-    file://../../LICENSES/BSD-3-Clause.txt;md5=85c5d57f6d7c8862ba09a3961201419c \
+    file://../LICENSES/Apache-2.0.txt;md5=c846ebb396f8b174b10ded4771514fcc \
+    file://../LICENSES/BSD-3-Clause.txt;md5=85c5d57f6d7c8862ba09a3961201419c \
 "
 # BSD-3-Clause: vendored cmake/CodeCoverage.cmake (Lars Bilke,
 # github.com/bilke/cmake-modules) -- build-tooling only, not linked into

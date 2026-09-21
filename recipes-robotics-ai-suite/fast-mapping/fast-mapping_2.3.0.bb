@@ -1,9 +1,14 @@
 SUMMARY = "A really FastMapping method from RGB-D sequences"
 HOMEPAGE = "https://github.com/open-edge-platform/edge-ai-suites/tree/main/robotics-ai-suite/components/fast-mapping"
 LICENSE = "Apache-2.0 & BSD-3-Clause"
+# LICENSES/ lives directly under robotics-ai-suite/components/fast-mapping/,
+# the same level as S -- not one up. Confirmed via a real do_populate_lic
+# failure: `bitbake -c compile` alone never exercises do_populate_lic, so
+# a wrong relative path here went undetected until a full `bitbake
+# <recipe>` build actually ran it.
 LIC_FILES_CHKSUM = " \
-    file://../LICENSES/Apache-2.0.txt;md5=c846ebb396f8b174b10ded4771514fcc \
-    file://../LICENSES/BSD-3-Clause.txt;md5=71f739ef75581cae312e8c711bcdab16 \
+    file://LICENSES/Apache-2.0.txt;md5=c846ebb396f8b174b10ded4771514fcc \
+    file://LICENSES/BSD-3-Clause.txt;md5=71f739ef75581cae312e8c711bcdab16 \
 "
 # BSD-3-Clause: src/fast_mapping_lib/se/** (Copyright 2016 Emanuele Vespa,
 # Imperial College London) -- explicitly annotated in the component's own
