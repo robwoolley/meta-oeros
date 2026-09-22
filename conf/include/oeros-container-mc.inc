@@ -113,3 +113,16 @@ RDEPENDS:lttng-tools-ptest:remove = "lttng-modules"
 # to packages nothing in base/ros-core reaches; fix each as it actually
 # surfaces rather than guessing all of them up front.)
 RPROVIDES:osrf-pycommon += "python3-osrf-pycommon"
+
+# Mirror image of the osrf-pycommon case above, hit during the simulation
+# image: ros-gz-sim's ROS_EXEC_DEPENDS legitimately lists "cli11" (there is
+# a real openembedded rosdep mapping this time, no ROS_UNRESOLVED_DEP
+# marker), but meta-openembedded's cli11 recipe deliberately packages
+# itself the correct OE way for a header-only C++ library -- "cli11 is a
+# header only C++ library, so the main package will be empty" (its own
+# comment; RDEPENDS:${PN}-dev = "" and everything actually installable
+# lives in cli11-dev). rosdep's source-package naming convention and OE's
+# empty-main-package-for-header-only-libs convention just don't line up.
+# Alias the package that actually has content to the name ros-gz-sim asks
+# for, same reasoning as osrf-pycommon: don't hand-edit the generated recipe.
+RPROVIDES:cli11-dev += "cli11"
