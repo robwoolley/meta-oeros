@@ -8,6 +8,18 @@ image, and this packagegroup covers the ones OEROS supports."
 
 inherit packagegroup
 
+# packagegroup.bbclass defaults PACKAGE_ARCH to "all" (build once, reuse
+# across any machine of compatible tune). That only holds if every RDEPENDS
+# is itself allarch. The X11 libraries below are not: each one's real ipk
+# package name is renamed at packaging time to include its SONAME (libx11 ->
+# libx11-6, libglu -> libglu1, etc, same mechanism as Debian's shlibs), which
+# is architecture- and version-specific. An allarch packagegroup.do_package_qa
+# ERRORs on exactly this ("An allarch packagegroup shouldn't depend on
+# packages which are dynamically renamed") -- oddly without actually failing
+# the task, so it's easy to miss buried in an otherwise-clean build log; fix
+# it at the source rather than relying on that.
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 # --user / --user-preserve-home: rocker's generated snippet calls groupadd,
 #   useradd and usermod, then adds the new account to sudoers so that the
 #   in-container user can install things.  All of that lives in shadow.
