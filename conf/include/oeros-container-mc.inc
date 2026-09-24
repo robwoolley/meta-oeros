@@ -126,3 +126,29 @@ RPROVIDES:osrf-pycommon += "python3-osrf-pycommon"
 # Alias the package that actually has content to the name ros-gz-sim asks
 # for, same reasoning as osrf-pycommon: don't hand-edit the generated recipe.
 RPROVIDES:cli11-dev += "cli11"
+
+# oeros-container-sdk-cross.bb's do_rootfs[depends] on
+# ros2-image-sdktest:do_populate_sdk (meta-ros, not ours) pulls that image
+# recipe's own dependency graph in too, which includes oe-core's
+# packagegroup-core-boot -- a normal, expected thing for a genuine bootable
+# image, which ros2-image-sdktest otherwise is. packagegroup-core-boot
+# RDEPENDS on the literal runtime package name "kernel", a separate
+# resolution namespace from "virtual/kernel": PREFERRED_PROVIDER_virtual/kernel
+# above steers the latter to linux-dummy, but linux-dummy never claims the
+# "kernel" RPROVIDES alias itself (only real kernel recipes' kernel-image
+# packages do, via kernel.bbclass, which linux-dummy doesn't inherit), so
+# it's invisible to this lookup and nothing satisfies it. Same fix shape as
+# virtual/kernel: make linux-dummy claim this alias too, rather than pull in
+# a real kernel for an SDK/toolchain container that will never boot one.
+#
+# The alias has to land on a package that actually gets an ipk built, not
+# linux-dummy's own default ${PN} package: its do_install is a no-op, and
+# unlike kernel-modules/kernel-vmlinux (linux-dummy.bb sets ALLOW_EMPTY = "1"
+# on both of those, not on ${PN} itself), an empty default package produces
+# no ipk at all -- confirmed via a real do_populate_sdk run, where only
+# linux-dummy-dbg/-dev existed in the deploy feed and this RPROVIDES,
+# originally set on linux-dummy itself, was never actually published
+# anywhere for opkg to see. kernel-vmlinux is both real (ALLOW_EMPTY) and
+# the semantically apt target: the package standing in for "the kernel
+# image exists."
+RPROVIDES:kernel-vmlinux += "kernel"
