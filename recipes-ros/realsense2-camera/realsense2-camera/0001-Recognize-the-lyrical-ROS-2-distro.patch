@@ -1,0 +1,34 @@
+From: OEROS <oeros@windriver.com>
+Date: Mon, 22 Sep 2026 00:00:00 +0000
+Subject: [PATCH] Recognize the lyrical ROS 2 distro
+
+CMakeLists.txt hard-codes an allow-list of ROS_DISTRO names and
+FATAL_ERRORs on anything else -- "lyrical" isn't in it yet, since this
+release predates that distro. Treat it the same as "kilted", its
+nearest known neighbor: the -D<DISTRO> defines only gate whether
+src/ros_param_backend.cpp is compiled in, which every distro from
+foxy onward has needed, lyrical included.
+
+Upstream-Status: Inappropriate [distro name postdates this release;
+resend once a release recognizing "lyrical" ships]
+
+Signed-off-by: OEROS <oeros@windriver.com>
+---
+ CMakeLists.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 253b1412..3bd7f612 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -217,6 +217,10 @@ elseif("$ENV{ROS_DISTRO}" STREQUAL "kilted")
+   message(STATUS "Build for ROS2 Kilted")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKILTED")
+   set(SOURCES "${SOURCES}" src/ros_param_backend.cpp)
++elseif("$ENV{ROS_DISTRO}" STREQUAL "lyrical")
++  message(STATUS "Build for ROS2 Lyrical")
++  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKILTED")
++  set(SOURCES "${SOURCES}" src/ros_param_backend.cpp)
+ else()
+   message(FATAL_ERROR "Unsupported ROS Distribution: " "$ENV{ROS_DISTRO}")
+ endif()
