@@ -66,3 +66,14 @@ CXXFLAGS:append = " -Wno-error=old-style-cast"
 # not this recipe-specific custom staging directory. Map it the same way,
 # to the same kind of neutral path oe-core uses for everything else.
 CXXFLAGS:append = " -ffile-prefix-map=${UNPACKDIR}/foxglove-sdk-prefetched=/usr/src/debug/${PN}/foxglove-sdk"
+
+# On arm64 only, do_package_qa's file-rdeps check correctly flags that the
+# prebuilt libfoxglove.so (vendored binary, never compiled by bitbake --
+# see the fetch/staging above) is linked against libglib-2.0/libgobject-2.0/
+# libgio-2.0, with no RDEPENDS covering them. Bitbake's usual automatic
+# shlib dependency detection is built from packages it compiles itself and
+# evidently doesn't reach into an externally-fetched prebuilt binary the
+# same way (this didn't surface on x86-64, most likely because something
+# else already in that build's dependency chain happened to pull glib in
+# transitively where nothing does here). Declare it explicitly.
+RDEPENDS:${PN} += "glib-2.0"
