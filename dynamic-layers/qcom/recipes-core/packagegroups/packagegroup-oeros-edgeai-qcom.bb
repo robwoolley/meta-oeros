@@ -23,13 +23,18 @@ COMPATIBLE_MACHINE = "(qcs6490|qcm6490|qcs8300|qcs9100|iq-9075-evk|iq-8275-evk)"
 # on the edgeai-robotics-sdk MACHINE_FEATURE those two machines' fragments
 # set, not on the whole qcom vendor family.
 PACKAGES = "${PN} ${PN}-runtime ${PN}-robotics ${PN}-dev"
+# The Qualcomm-licensed binaries (QAIRT, FastCV, Hexagon DSP) are opt-in via
+# the oeros/qcom-proprietary fragment (MACHINE_FEATURE
+# edgeai-qcom-proprietary). Sub-package RDEPENDS are gated too, since
+# bitbake resolves every sub-package of a packagegroup.
+OEROS_QC = "${@bb.utils.contains('MACHINE_FEATURES', 'edgeai-qcom-proprietary', '1', '', d)}"
 RDEPENDS:${PN} = " \
-    ${PN}-runtime \
+    ${@'${PN}-runtime' if d.getVar('OEROS_QC') else ''} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'edgeai-robotics-sdk', '${PN}-robotics', '', d)} \
 "
 
 # meta-qcom (prebuilt Hexagon/FastCV) + meta-qcom-distro
-RDEPENDS:${PN}-runtime = " \
+OEROS_QC_RUNTIME = " \
     qnn-sdk qairt-runtime snpe \
     tensorflow-lite-qnn-delegate onnxruntime-qnn-ep \
     hexagon-dsp-binaries qcom-fastcv-binaries \
@@ -43,7 +48,9 @@ RDEPENDS:${PN}-runtime = " \
 RDEPENDS:${PN}-robotics = " \
     packagegroup-qcom-ros2 \
     packagegroup-robotics-opensource \
-    packagegroup-oss-with-prop-deps \
+    ${@'packagegroup-oss-with-prop-deps' if d.getVar('OEROS_QC') else ''} \
 "
 
-RDEPENDS:${PN}-dev = "qnn-sdk-dev qairt-tools"
+OEROS_QC_DEV = "qnn-sdk-dev qairt-tools"
+RDEPENDS:${PN}-runtime = "${@d.getVar('OEROS_QC_RUNTIME') if d.getVar('OEROS_QC') else ''}"
+RDEPENDS:${PN}-dev = "${@d.getVar('OEROS_QC_DEV') if d.getVar('OEROS_QC') else ''}"

@@ -5,4 +5,5 @@
 # edgeai-robotics-sdk MACHINE_FEATURE their machine fragments set)
 OEROS_EDGEAI_VENDOR = "qcom"
 MACHINE_FEATURES:append = " edgeai edgeai-npu edgeai-hexagon"
-LICENSE_FLAGS_ACCEPTED:append = " commercial"
+# No license flags here: QAIRT/FastCV/Hexagon binaries are opt-in via the
+# oeros/qcom-proprietary fragment (docs/edgeai.md).

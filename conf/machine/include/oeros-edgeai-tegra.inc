@@ -3,4 +3,5 @@
 # no separate "-super" MACHINE), jetson-agx-orin-devkit
 OEROS_EDGEAI_VENDOR = "tegra"
 MACHINE_FEATURES:append = " edgeai edgeai-gpu edgeai-cuda"
-LICENSE_FLAGS_ACCEPTED:append = " commercial_tegra"
+# No license flags here: the proprietary CUDA/TensorRT/DeepStream stack is
+# opt-in via the oeros/nvidia-proprietary fragment (docs/edgeai.md).
