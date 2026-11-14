@@ -9,7 +9,7 @@ RDEPENDS:${PN} = "${PN}-runtimes ${PN}-vision ${PN}-pipeline ${PN}-python"
 # meta-onnxruntime / meta-tensorflow-lite; vendor EPs are added in the vendor groups
 RDEPENDS:${PN}-runtimes = " \
     onnxruntime \
-    tensorflow-lite \
+    libtensorflow-lite \
     flatbuffers \
     protobuf \
 "
@@ -30,15 +30,19 @@ RDEPENDS:${PN}-pipeline = " \
     v4l-utils \
 "
 
+# The ONNX Runtime Python bindings ship inside the onnxruntime package
+# (meta-onnxruntime installs the wheel into ${PN}); there is no separate
+# python3-onnxruntime.
 RDEPENDS:${PN}-python = " \
     python3-numpy \
-    python3-onnxruntime \
+    onnxruntime \
     python3-tensorflow-lite \
     python3-opencv \
     python3-pillow \
 "
 
-# Optional: on-device profiling/debug
+# Optional: on-device profiling/debug. onnxruntime-tools is split out of
+# the onnxruntime recipe by dynamic-layers/meta-onnxruntime/.../onnxruntime_%.bbappend
 RDEPENDS:${PN}-tools = " \
     onnxruntime-tools \
     perf \
