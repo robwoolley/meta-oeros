@@ -66,7 +66,8 @@ RDEPENDS:${PN}-industrial = " \
     ${@bb.utils.contains('BBFILE_COLLECTIONS', 'xilinx-tsn', 'packagegroup-tsn', '', d)} \
 "
 
-# Kria SOM utilities from meta-kria-core, all Apache-2.0/MIT: xmutil (load
+# Kria SOM utilities from meta-kria-core, all Apache-2.0/MIT, plus Oeros'
+# port of the Kria robotics apps (recipes-kria-apps/, packagegroup-oeros-kria-apps): xmutil (load
 # and unload accelerator apps), platform stats, AXI/DDR QoS tuning.
 # packagegroup-kria itself is NOT used: it RDEPENDS on the proprietary
 # k26-/k24-starter-kits firmware (those go in -proprietary instead) and on
@@ -77,6 +78,7 @@ RDEPENDS:${PN}-industrial = " \
 # (MACHINEOVERRIDES is ':'-separated, so bb.utils.contains() can't test it.)
 RDEPENDS:${PN}-kria = ""
 RDEPENDS:${PN}-kria:kria = " \
+    packagegroup-oeros-kria-apps \
     xmutil \
     xlnx-platformstats \
     axi-qos \
