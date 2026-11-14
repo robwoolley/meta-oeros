@@ -59,6 +59,13 @@
                 "rev": "wrynose"
             }
         },
+        "meta-tegra-community": {
+            "git-remote": {
+                "uri": "https://github.com/OE4T/meta-tegra-community",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
         "meta-freescale": {
             "git-remote": {
                 "uri": "https://github.com/Freescale/meta-freescale",
@@ -211,6 +218,7 @@
                     "meta-tensorflow-lite",
                     "meta-onnxruntime",
                     "meta-tegra",
+                    "meta-tegra-community",
                     "meta-freescale",
                     "meta-imx/meta-imx-bsp",
                     "meta-imx/meta-imx-sdk",

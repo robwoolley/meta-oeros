@@ -12,9 +12,11 @@ RDEPENDS:${PN}-runtime = " \
     onnxruntime-tensorrt-ep \
     tegra-libraries-multimedia vpi \
 "
+# DeepStream comes from meta-tegra-community, whose recipe name carries
+# the major version (deepstream-9.1); meta-tegra itself has no deepstream.
 RDEPENDS:${PN}-multimedia = " \
     gstreamer1.0-plugins-nvvideo4linux2 gstreamer1.0-plugins-nvarguscamerasrc \
-    deepstream nvidia-container-runtime \
+    deepstream-9.1 nvidia-container-runtime \
 "
 # Isaac ROS built from source against meta-tegra TensorRT (recipes in this layer)
 RDEPENDS:${PN}-ros = " \
