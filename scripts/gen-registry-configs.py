@@ -228,6 +228,11 @@ CONFIGS = {
             ("oeros/machine-k24-smk-kd-sdt", "Robotics/industrial: AMD Kria KD240 Drives Starter Kit (K24 SOM) -- motor control, ros2_control, CAN/TSN"),
             ("oeros/machine-versal-vek280-sdt-seg", "Edge AI: AMD Versal AI Edge VEK280 -- AIE-ML array, XRT (Vitis AI runtime not yet on wrynose)"),
             ("oeros/machine-versal-2ve-2vm-vek385-revb-sdt-seg", "Edge AI: AMD Versal AI Edge Gen 2 VEK385 Rev B -- AIE-MLv2 array, XRT (Vitis AI runtime not yet on wrynose)"),
+            ("oeros/machine-k26-smk-kr-sdt-multidomain", "Edge AI + robotics, AMP: KR260 -- Linux on the A53s + FreeRTOS/Zephyr on the Cortex-R5F over OpenAMP RPMsg"),
+            ("oeros/machine-k26-smk-kv-sdt-multidomain", "Edge AI, AMP: KV260 -- Linux on the A53s + FreeRTOS/Zephyr on the Cortex-R5F over OpenAMP RPMsg"),
+            ("oeros/machine-k24-smk-kd-sdt-multidomain", "Robotics/industrial, AMP: KD240 -- Linux + real-time motor-control loops on the Cortex-R5F over OpenAMP RPMsg"),
+            ("oeros/machine-versal-vek280-multidomain", "Edge AI, AMP: VEK280 -- Linux on the A72s + FreeRTOS/bare metal on the Cortex-R5F over OpenAMP RPMsg"),
+            ("oeros/machine-versal-2ve-2vm-vek385-revb-multidomain", "Edge AI, AMP: VEK385 Rev B -- Linux on the A78s + Zephyr/bare metal on the Cortex-R52 over OpenAMP RPMsg"),
         ],
     },
 }

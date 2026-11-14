@@ -222,7 +222,12 @@
                             { "name": "oeros/machine-k26-smk-kv-sdt", "description": "Edge AI: AMD Kria KV260 Vision AI Starter Kit (K26 SOM) -- XRT/DFX accelerators, camera pipelines (VCU with oeros/amd-proprietary)" },
                             { "name": "oeros/machine-k24-smk-kd-sdt", "description": "Robotics/industrial: AMD Kria KD240 Drives Starter Kit (K24 SOM) -- motor control, ros2_control, CAN/TSN" },
                             { "name": "oeros/machine-versal-vek280-sdt-seg", "description": "Edge AI: AMD Versal AI Edge VEK280 -- AIE-ML array, XRT (Vitis AI runtime not yet on wrynose)" },
-                            { "name": "oeros/machine-versal-2ve-2vm-vek385-revb-sdt-seg", "description": "Edge AI: AMD Versal AI Edge Gen 2 VEK385 Rev B -- AIE-MLv2 array, XRT (Vitis AI runtime not yet on wrynose)" }
+                            { "name": "oeros/machine-versal-2ve-2vm-vek385-revb-sdt-seg", "description": "Edge AI: AMD Versal AI Edge Gen 2 VEK385 Rev B -- AIE-MLv2 array, XRT (Vitis AI runtime not yet on wrynose)" },
+                            { "name": "oeros/machine-k26-smk-kr-sdt-multidomain", "description": "Edge AI + robotics, AMP: KR260 -- Linux on the A53s + FreeRTOS/Zephyr on the Cortex-R5F over OpenAMP RPMsg" },
+                            { "name": "oeros/machine-k26-smk-kv-sdt-multidomain", "description": "Edge AI, AMP: KV260 -- Linux on the A53s + FreeRTOS/Zephyr on the Cortex-R5F over OpenAMP RPMsg" },
+                            { "name": "oeros/machine-k24-smk-kd-sdt-multidomain", "description": "Robotics/industrial, AMP: KD240 -- Linux + real-time motor-control loops on the Cortex-R5F over OpenAMP RPMsg" },
+                            { "name": "oeros/machine-versal-vek280-multidomain", "description": "Edge AI, AMP: VEK280 -- Linux on the A72s + FreeRTOS/bare metal on the Cortex-R5F over OpenAMP RPMsg" },
+                            { "name": "oeros/machine-versal-2ve-2vm-vek385-revb-multidomain", "description": "Edge AI, AMP: VEK385 Rev B -- Linux on the A78s + Zephyr/bare metal on the Cortex-R52 over OpenAMP RPMsg" }
                         ]
                     }
                 }

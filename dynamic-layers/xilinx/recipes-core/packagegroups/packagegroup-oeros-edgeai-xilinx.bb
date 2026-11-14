@@ -12,11 +12,12 @@ COMPATIBLE_MACHINE = "(zynqmp|versal)"
 
 PACKAGES = " \
     ${PN} ${PN}-runtime ${PN}-pipeline ${PN}-ros ${PN}-industrial \
-    ${PN}-kria ${PN}-proprietary ${PN}-vitis-ai ${PN}-dev \
+    ${PN}-kria ${PN}-openamp ${PN}-proprietary ${PN}-vitis-ai ${PN}-dev \
 "
 RDEPENDS:${PN} = " \
     ${PN}-runtime ${PN}-pipeline ${PN}-ros ${PN}-industrial \
     ${@'${PN}-kria' if 'kria' in d.getVar('MACHINEOVERRIDES').split(':') else ''} \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'edgeai-openamp', '${PN}-openamp', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'edgeai-amd-proprietary', '${PN}-proprietary', '', d)} \
     ${@bb.utils.contains('MACHINE_FEATURES', 'edgeai-vitis-ai', '${PN}-vitis-ai', '', d)} \
 "
@@ -81,6 +82,18 @@ RDEPENDS:${PN}-kria:kria = " \
     axi-qos \
     ddr-qos \
 "
+
+# AMP/multidomain machines only (MACHINE_FEATURE edgeai-openamp, set by the
+# oeros/machine-*-multidomain fragments along with DISTRO_FEATURES openamp).
+# packagegroup-openamp (meta-xilinx-core, openamp-layer dynamic layer):
+# libmetal, open-amp, rpmsg char/ctrl modules and the echo/matrix/proxy
+# demos. On KR260/KV260 also the prebuilt Cortex-R5 Zephyr OpenAMP demo
+# firmware from meta-kria (BSD-3-Clause). AMD ships equivalent VEK280/VEK385
+# firmware recipes only for the EDF "common" machines
+# (amd-cortexa72-common, amd-cortexa78-*-common), so none is added there.
+RDEPENDS:${PN}-openamp = "${@bb.utils.contains('MACHINE_FEATURES', 'edgeai-openamp', 'packagegroup-openamp', '', d)}"
+RDEPENDS:${PN}-openamp:append:k26-smk-kr-sdt-multidomain = " k26-smk-kr-sdt-multidomain-openamp-fw-examples"
+RDEPENDS:${PN}-openamp:append:k26-smk-kv-sdt-multidomain = " k26-smk-kv-sdt-multidomain-openamp-fw-examples"
 
 # Opt-in only (MACHINE_FEATURE edgeai-amd-proprietary, set by the
 # oeros/amd-proprietary fragment together with the matching
