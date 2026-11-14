@@ -57,13 +57,18 @@ meta-tensorflow-lite, meta-onnxruntime → packagegroup-oeros-edgeai-core + -ros
 As of 2026-09-19, these vendor layers have no branch past `scarthgap`
 (3-4 Yocto releases behind `wrynose`) and are **not** included on this branch:
 
-- **AMD/Xilinx**: `meta-xilinx-tools`, `meta-vitis-ai`, `meta-kria` — versioned by
-  Xilinx tool release (`rel-v2026.1`) rather than Yocto codename. `meta-xilinx`
-  (core BSP) *does* have a `wrynose` branch, but it does not define the
-  `k26-smk-kr` / `k24-smk-kd` / `vek280-versal` MACHINEs — those live in
-  `meta-kria`/`meta-vitis-ai`, so the Kria/Versal targets cannot be built on
-  wrynose at all yet. `packagegroup-oeros-edgeai-xilinx.bb` and the
-  corresponding machine fragments/`.inc` live on the follow-up branch.
+- ~~**AMD/Xilinx**~~ — **no longer deferred (`feature/edgeai-v3`, 2026-11-13).**
+  AMD's `rel-v2026.2` release moved `meta-xilinx`, `meta-kria`,
+  `meta-amd-adaptive-socs` and `meta-vitis` to `LAYERSERIES_COMPAT =
+  "wrynose"`, and the board MACHINEs are now the SDT-based
+  `k26-smk-kr-sdt` / `k26-smk-kv-sdt` / `k24-smk-kd-sdt` (meta-kria) and
+  `versal-vek280-sdt-seg` / `versal-2ve-2vm-vek385-revb-sdt-seg`
+  (meta-amd-adaptive-socs). Only `meta-xilinx-tools` is still pre-wrynose,
+  and the SDT flow doesn't need it. They build from their own
+  `oeros-wrynose-lyrical-amd` config — see **`docs/amd-xilinx.md`** for the
+  machine survey, layer table, proprietary opt-in and vendor comparison.
+  What is still missing on wrynose is the **Vitis AI runtime** (VART/DPU):
+  see that doc.
 - **Qualcomm QIM SDK**: `meta-qcom-hwe`, `meta-qcom-qim-product-sdk` — also
   stuck at `scarthgap`. The QCS6490/QCS9100 *MACHINE* definitions and the raw
   QNN/QAIRT/SNPE runtime are unaffected (they live in `meta-qcom` /
@@ -326,8 +331,10 @@ renamed):
 | Layer | Packagegroup | What it does | Relation to oeros |
 |---|---|---|---|
 | `meta-imx-ml` | `packagegroup-imx-ml` | Per-SoC-family (`mx8mp`/`mx93`/`mx943`/`mx95`) selection of TFLite/PyTorch/ONNXRuntime, NNStreamer, and the correct NPU delegate (VX/Ethos-U/Neutron) via `MACHINE_FEATURES`/override logic | `packagegroup-oeros-edgeai-imx.bb` re-derives this delegate selection by hand; RDEPENDS on `packagegroup-imx-ml` directly instead and it stays correct as NXP adds SoCs |
-| `meta-vitis-ai` | `packagegroup-vitis-aiml` | Base ML dependency libs (fmt, glog, gsl, hdf5, eigen, spdlog, xtensor, pybind11) needed to build/run Vitis-AI apps | Good `-dev`/runtime dependency for `packagegroup-oeros-edgeai-xilinx` on `feature/edgeai-amd-xilinx-lag` |
-| `meta-kria` | `packagegroup-kria` | Kria SOM essentials: firmware, `kria-dashboard`, `xmutil`, Jupyter, TPM2 security, board-id data | `packagegroup-oeros-edgeai-xilinx.bb` already lists `xmutil`/`dfx-mgr` individually; RDEPENDS on `packagegroup-kria` as a whole would be more maintainable |
+| `meta-vitis` (formerly `meta-vitis-ai`) | `packagegroup-vitis-aiml` | Base ML dependency libs (fmt, glog, gsl, hdf5, eigen, spdlog, xtensor, pybind11) needed to build/run Vitis-AI apps | Consumed by `packagegroup-oeros-edgeai-xilinx`'s `-runtime`/`-dev` (`feature/edgeai-v3`) |
+| `meta-kria` | `packagegroup-kria` | Kria SOM essentials: firmware, `kria-dashboard`, `xmutil`, Jupyter, TPM2 security, board-id data | It RDEPENDS on the proprietary `k26-`/`k24-starter-kits` PL firmware, so `packagegroup-oeros-edgeai-xilinx` lists the open utilities in `-kria` and the starter-kit firmware directly in the opt-in `-proprietary` (`packagegroup-kria` also needs `packagegroup-security-tpm2` from meta-security, which isn't in the AMD config) |
+| `meta-xilinx` | `packagegroup-xilinx-gstreamer`, `packagegroup-xilinx-ros` | AMD GStreamer fork plugins; ROS 2 base/demo/control (dynamic layer on meta-ros) | `-pipeline` uses `packagegroup-xilinx-gstreamer`; `packagegroup-xilinx-ros` is not used because it forces `cyclonedds`/`rmw-cyclonedds-cpp` |
+| `meta-xilinx-tsn` | `packagegroup-tsn` | gPTP, tsn-utils, openlldp | Used by `-industrial` |
 | `meta-qcom` | `packagegroup-rb3gen2` | RB3 Gen2-specific firmware + the real Hexagon DSP binary package names (see the bug noted above) | Use directly rather than guessing PNs |
 | `meta-qcom` (formerly `meta-qcom-hwe`, now merged — see "Update 2026-09-19" above) | `packagegroup-qcom-fastcv`, `packagegroup-qcom-camera`, `packagegroup-qcom-opencv` | SOC_FAMILY-aware (qcm6490/qcs615/qcs9100/qcs8300) camera/FastCV/OpenCV stacks | Now potentially usable directly from `meta-qcom` on this (non-lag) branch — not yet re-audited into `packagegroup-oeros-edgeai-qcom.bb`'s `-runtime` |
 | `meta-qcom-robotics-sdk` | `packagegroup-qcom-ros2`, `packagegroup-robotics-opensource`, `packagegroup-oss-with-prop-deps` | Nav2/MoveIt2 + QRB-ROS nodes + community robotics packages | Consumed directly by `packagegroup-oeros-edgeai-qcom.bb`'s `-robotics` sub-package (see the QIR SDK section above) |
@@ -353,12 +360,10 @@ config, marketed at or commonly used for robotics:
   the newer devkits, but `meta-qcom-robotics-sdk`'s own CI doesn't build
   for them, so it's unverified whether the QIR SDK packagegroups apply
   cleanly there.
-- **AMD/Xilinx (meta-kria)**: alongside `k26-smk-kr` (KR260, robotics
-  starter kit), `k26-smk-kv` (**KV260**, the Vision AI starter kit) is
-  arguably more relevant to a perception/inference-focused Edge AI
-  config than `k24-smk-kd`, which the original draft's README table
-  listed but which meta-kria doesn't clearly distinguish for vision use.
-  Add once the AMD/Xilinx branch is unblocked.
+- **AMD/Xilinx**: done on `feature/edgeai-v3` — KR260, KV260, KD240,
+  VEK280 and VEK385 Rev B. The full per-MACHINE relevance table (all
+  wrynose machines in meta-xilinx/meta-kria/meta-amd-adaptive-socs) is in
+  `docs/amd-xilinx.md`.
 - **Nvidia (meta-tegra)**: `jetson-agx-thor-devkit` (next-gen AGX, wrynose
   branch already has machine confs for it) is worth tracking as a future
   high-end robotics target once Isaac ROS / CUDA support matures on it;
@@ -386,7 +391,7 @@ e.g.:
 - `oeros-wrynose-lyrical-qualcomm.conf.json`
 - `oeros-wrynose-lyrical-ti.conf.json`
 - `oeros-wrynose-lyrical-intel.conf.json`
-- `oeros-wrynose-lyrical-amd-xilinx.conf.json` (once unblocked)
+- `oeros-wrynose-lyrical-amd.conf.json` — **exists** (`feature/edgeai-v3`); forced early because meta-xilinx-multimedia overrides GStreamer's PREFERRED_VERSION from its layer.conf
 
 Each would set `"extends": "oeros-wrynose-lyrical"` (mirroring how the
 original `oeros-edgeai-setup.json` draft used `"extends": "oeros-base"`)
