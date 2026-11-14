@@ -1,0 +1,172 @@
+{
+    "description": "OpenEmbedded ROS - Wrynose Lyrical (Nvidia Jetson Edge AI). The CUDA/TensorRT/DeepStream stack is opt-in: enable oeros/nvidia-proprietary. See docs/edgeai.md.",
+    "sources": {
+        "bitbake": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/bitbake",
+                "branch": "2.18",
+                "rev": "2.18"
+            }
+        },
+        "openembedded-core": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/openembedded-core",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-clang": {
+            "git-remote": {
+                "uri": "https://github.com/kraj/meta-clang.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-intel-realsense": {
+            "git-remote": {
+                "uri": "https://github.com/realsenseai/meta-intel-realsense.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-oeros": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-oeros",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-tensorflow-lite": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-tensorflow-lite",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-onnxruntime": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-onnxruntime",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-openembedded": {
+            "git-remote": {
+                "uri": "https://github.com/openembedded/meta-openembedded",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-python-ai": {
+            "git-remote": {
+                "uri": "https://github.com/zboszor/meta-python-ai",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qt6": {
+            "git-remote": {
+                "uri": "https://code.qt.io/yocto/meta-qt6.git",
+                "branch": "6.11",
+                "rev": "6.11"
+            }
+        },
+        "meta-ros": {
+            "git-remote": {
+                "uri": "https://github.com/ros/meta-ros.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-virtualization": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-virtualization",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-security": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-security",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-zenoh": {
+            "git-remote": {
+                "uri": "https://github.com/Jarsop/meta-zenoh.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-tegra": {
+            "git-remote": {
+                "uri": "https://github.com/OE4T/meta-tegra",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-tegra-community": {
+            "git-remote": {
+                "uri": "https://github.com/OE4T/meta-tegra-community",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        }
+    },
+    "bitbake-setup": {
+        "configurations": [
+            {
+                "name": "oeros-wrynose-lyrical-nvidia",
+                "description": "OpenEmbedded ROS Wrynose Lyrical -- Nvidia Jetson Edge AI",
+                "setup-dir-name": "oeros-wrynose-lyrical-nvidia",
+                "bb-layers": [
+                    "openembedded-core/meta",
+                    "meta-openembedded/meta-filesystems",
+                    "meta-openembedded/meta-gnome",
+                    "meta-openembedded/meta-initramfs",
+                    "meta-openembedded/meta-multimedia",
+                    "meta-openembedded/meta-networking",
+                    "meta-openembedded/meta-oe",
+                    "meta-openembedded/meta-perl",
+                    "meta-openembedded/meta-python",
+                    "meta-openembedded/meta-webserver",
+                    "meta-openembedded/meta-xfce",
+                    "meta-clang",
+                    "meta-intel-realsense",
+                    "meta-oeros",
+                    "meta-tensorflow-lite",
+                    "meta-onnxruntime",
+                    "meta-tegra",
+                    "meta-tegra-community",
+                    "meta-python-ai",
+                    "meta-qt6",
+                    "meta-ros/meta-ros-common",
+                    "meta-ros/meta-ros2",
+                    "meta-ros/meta-ros2-lyrical",
+                    "meta-virtualization",
+                    "meta-security",
+                    "meta-security/meta-tpm",
+                    "meta-zenoh/meta-zenoh"
+                ],
+                "bb-env-passthrough-additions": ["DL_DIR", "SSTATE_DIR", "NVIDIA_DEVNET_MIRROR"],
+                "oe-fragments-one-of": {
+                    "distro": {
+                        "description": "Target distributions",
+                        "options" : [
+                            { "name": "distro/oeros", "description": "Oeros Reference Distro" }
+                        ]
+                    },
+                    "machine": {
+                        "description": "Target machines",
+                        "options" : [
+                            { "name": "oeros/machine-jetson-orin-nano-devkit", "description": "Edge AI: Nvidia Jetson Orin Nano (Super nvpmodel by default) -- CUDA/TensorRT/VPI, Isaac ROS (with oeros/nvidia-proprietary)" },
+                            { "name": "oeros/machine-jetson-agx-orin-devkit", "description": "Edge AI: Nvidia Jetson AGX Orin -- CUDA/TensorRT/VPI, Isaac ROS (with oeros/nvidia-proprietary)" }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "version": "1.0"
+}

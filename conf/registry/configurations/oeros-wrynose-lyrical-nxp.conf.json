@@ -1,0 +1,191 @@
+{
+    "description": "OpenEmbedded ROS - Wrynose Lyrical (NXP i.MX Edge AI). i.MX builds need the NXP EULA: enable oeros/nxp-proprietary. See docs/edgeai.md.",
+    "sources": {
+        "bitbake": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/bitbake",
+                "branch": "2.18",
+                "rev": "2.18"
+            }
+        },
+        "openembedded-core": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/openembedded-core",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-clang": {
+            "git-remote": {
+                "uri": "https://github.com/kraj/meta-clang.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-intel-realsense": {
+            "git-remote": {
+                "uri": "https://github.com/realsenseai/meta-intel-realsense.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-oeros": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-oeros",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-tensorflow-lite": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-tensorflow-lite",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-onnxruntime": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-onnxruntime",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-openembedded": {
+            "git-remote": {
+                "uri": "https://github.com/openembedded/meta-openembedded",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-python-ai": {
+            "git-remote": {
+                "uri": "https://github.com/zboszor/meta-python-ai",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qt6": {
+            "git-remote": {
+                "uri": "https://code.qt.io/yocto/meta-qt6.git",
+                "branch": "6.11",
+                "rev": "6.11"
+            }
+        },
+        "meta-ros": {
+            "git-remote": {
+                "uri": "https://github.com/ros/meta-ros.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-virtualization": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-virtualization",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-security": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-security",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-zenoh": {
+            "git-remote": {
+                "uri": "https://github.com/Jarsop/meta-zenoh.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-freescale": {
+            "git-remote": {
+                "uri": "https://github.com/Freescale/meta-freescale",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-freescale-distro": {
+            "git-remote": {
+                "uri": "https://github.com/Freescale/meta-freescale-distro",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-yocto": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-yocto",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-imx": {
+            "git-remote": {
+                "uri": "https://github.com/nxp-imx/meta-imx",
+                "branch": "wrynose-6.18.37-2.1.0",
+                "rev": "wrynose-6.18.37-2.1.0"
+            }
+        }
+    },
+    "bitbake-setup": {
+        "configurations": [
+            {
+                "name": "oeros-wrynose-lyrical-nxp",
+                "description": "OpenEmbedded ROS Wrynose Lyrical -- NXP i.MX Edge AI",
+                "setup-dir-name": "oeros-wrynose-lyrical-nxp",
+                "bb-layers": [
+                    "openembedded-core/meta",
+                    "meta-openembedded/meta-filesystems",
+                    "meta-openembedded/meta-gnome",
+                    "meta-openembedded/meta-initramfs",
+                    "meta-openembedded/meta-multimedia",
+                    "meta-openembedded/meta-networking",
+                    "meta-openembedded/meta-oe",
+                    "meta-openembedded/meta-perl",
+                    "meta-openembedded/meta-python",
+                    "meta-openembedded/meta-webserver",
+                    "meta-openembedded/meta-xfce",
+                    "meta-clang",
+                    "meta-intel-realsense",
+                    "meta-oeros",
+                    "meta-tensorflow-lite",
+                    "meta-onnxruntime",
+                    "meta-freescale",
+                    "meta-freescale-distro",
+                    "meta-yocto/meta-poky",
+                    "meta-imx/meta-imx-bsp",
+                    "meta-imx/meta-imx-sdk",
+                    "meta-imx/meta-imx-ml",
+                    "meta-python-ai",
+                    "meta-qt6",
+                    "meta-ros/meta-ros-common",
+                    "meta-ros/meta-ros2",
+                    "meta-ros/meta-ros2-lyrical",
+                    "meta-virtualization",
+                    "meta-security",
+                    "meta-security/meta-tpm",
+                    "meta-zenoh/meta-zenoh"
+                ],
+                "bb-env-passthrough-additions": ["DL_DIR", "SSTATE_DIR"],
+                "oe-fragments-one-of": {
+                    "distro": {
+                        "description": "Target distributions",
+                        "options" : [
+                            { "name": "distro/oeros", "description": "Oeros Reference Distro" }
+                        ]
+                    },
+                    "machine": {
+                        "description": "Target machines",
+                        "options" : [
+                            { "name": "oeros/machine-imx8mp-lpddr4-evk", "description": "Edge AI: NXP i.MX 8M Plus -- eIQ, VX delegate on the Vivante NPU (needs oeros/nxp-proprietary)" },
+                            { "name": "oeros/machine-imx93-11x11-lpddr4x-evk", "description": "Edge AI: NXP i.MX 93 -- eIQ, Ethos-U NPU delegate (needs oeros/nxp-proprietary)" },
+                            { "name": "oeros/machine-imx95-19x19-lpddr5-evk", "description": "Edge AI: NXP i.MX 95 -- eIQ, Neutron NPU delegate (needs oeros/nxp-proprietary)" }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "version": "1.0"
+}

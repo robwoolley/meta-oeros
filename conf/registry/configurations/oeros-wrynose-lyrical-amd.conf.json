@@ -1,5 +1,5 @@
 {
-    "description": "OpenEmbedded ROS - Wrynose Lyrical (AMD/Xilinx Kria + Versal). A separate config from oeros-wrynose-lyrical because meta-xilinx-multimedia sets PREFERRED_VERSION_gstreamer1.0* to AMD's 1.28.2+amd fork from its layer.conf, and bitbake-setup bb-layers are shared across every machine option in one config file -- adding it there would swap GStreamer for every other vendor's board too. AMD layers are pinned to the rel-v2026.2 release (LAYERSERIES_COMPAT wrynose). See docs/amd-xilinx.md.",
+    "description": "OpenEmbedded ROS - Wrynose Lyrical (AMD/Xilinx Kria + Versal). meta-xilinx-multimedia sets PREFERRED_VERSION_gstreamer1.0* to AMD's 1.28.2+amd fork from its layer.conf, so these layers must not share a config with other vendors. AMD layers are pinned to the rel-v2026.2 release (LAYERSERIES_COMPAT wrynose). Proprietary firmware/drivers are opt-in: enable oeros/amd-proprietary. See docs/amd-xilinx.md.",
     "sources": {
         "bitbake": {
             "git-remote": {
@@ -50,13 +50,6 @@
                 "rev": "wrynose"
             }
         },
-        "meta-arm": {
-            "git-remote": {
-                "uri": "https://git.yoctoproject.org/meta-arm",
-                "branch": "wrynose",
-                "rev": "wrynose"
-            }
-        },
         "meta-openembedded": {
             "git-remote": {
                 "uri": "https://github.com/openembedded/meta-openembedded",
@@ -102,6 +95,13 @@
         "meta-zenoh": {
             "git-remote": {
                 "uri": "https://github.com/Jarsop/meta-zenoh.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-arm": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-arm",
                 "branch": "wrynose",
                 "rev": "wrynose"
             }
@@ -165,11 +165,15 @@
                 "bb-layers": [
                     "openembedded-core/meta",
                     "meta-openembedded/meta-filesystems",
+                    "meta-openembedded/meta-gnome",
+                    "meta-openembedded/meta-initramfs",
                     "meta-openembedded/meta-multimedia",
                     "meta-openembedded/meta-networking",
                     "meta-openembedded/meta-oe",
                     "meta-openembedded/meta-perl",
                     "meta-openembedded/meta-python",
+                    "meta-openembedded/meta-webserver",
+                    "meta-openembedded/meta-xfce",
                     "meta-clang",
                     "meta-intel-realsense",
                     "meta-oeros",
@@ -202,47 +206,23 @@
                     "meta-security/meta-tpm",
                     "meta-zenoh/meta-zenoh"
                 ],
-                "bb-env-passthrough-additions": [
-                    "DL_DIR",
-                    "SSTATE_DIR"
-                ],
+                "bb-env-passthrough-additions": ["DL_DIR", "SSTATE_DIR"],
                 "oe-fragments-one-of": {
                     "distro": {
                         "description": "Target distributions",
-                        "options": [
-                            {
-                                "name": "distro/oeros",
-                                "description": "Oeros Reference Distro"
-                            }
+                        "options" : [
+                            { "name": "distro/oeros", "description": "Oeros Reference Distro" }
                         ]
                     },
                     "machine": {
                         "description": "Target machines",
-                        "options": [
-                            {
-                                "name": "machine/qemuarm64",
-                                "description": "Machine configuration for running an ARMv8 system on QEMU"
-                            },
-                            {
-                                "name": "oeros/machine-k26-smk-kr-sdt",
-                                "description": "Edge AI + robotics: AMD Kria KR260 Robotics Starter Kit (K26 SOM, Zynq UltraScale+ EV) -- XRT/DFX accelerators, ros2_control, TSN"
-                            },
-                            {
-                                "name": "oeros/machine-k26-smk-kv-sdt",
-                                "description": "Edge AI: AMD Kria KV260 Vision AI Starter Kit (K26 SOM) -- XRT/DFX accelerators, camera pipelines (VCU with oeros/amd-proprietary)"
-                            },
-                            {
-                                "name": "oeros/machine-k24-smk-kd-sdt",
-                                "description": "Robotics/industrial: AMD Kria KD240 Drives Starter Kit (K24 SOM) -- motor control, ros2_control, CAN/TSN"
-                            },
-                            {
-                                "name": "oeros/machine-versal-vek280-sdt-seg",
-                                "description": "Edge AI: AMD Versal AI Edge VEK280 -- AIE-ML array, XRT (Vitis AI runtime not yet on wrynose)"
-                            },
-                            {
-                                "name": "oeros/machine-versal-2ve-2vm-vek385-revb-sdt-seg",
-                                "description": "Edge AI: AMD Versal AI Edge Gen 2 VEK385 Rev B -- AIE-MLv2 array, XRT (Vitis AI runtime not yet on wrynose)"
-                            }
+                        "options" : [
+                            { "name": "machine/qemuarm64", "description": "Machine configuration for running an ARMv8 system on QEMU" },
+                            { "name": "oeros/machine-k26-smk-kr-sdt", "description": "Edge AI + robotics: AMD Kria KR260 Robotics Starter Kit (K26 SOM, Zynq UltraScale+ EV) -- XRT/DFX accelerators, ros2_control, TSN" },
+                            { "name": "oeros/machine-k26-smk-kv-sdt", "description": "Edge AI: AMD Kria KV260 Vision AI Starter Kit (K26 SOM) -- XRT/DFX accelerators, camera pipelines (VCU with oeros/amd-proprietary)" },
+                            { "name": "oeros/machine-k24-smk-kd-sdt", "description": "Robotics/industrial: AMD Kria KD240 Drives Starter Kit (K24 SOM) -- motor control, ros2_control, CAN/TSN" },
+                            { "name": "oeros/machine-versal-vek280-sdt-seg", "description": "Edge AI: AMD Versal AI Edge VEK280 -- AIE-ML array, XRT (Vitis AI runtime not yet on wrynose)" },
+                            { "name": "oeros/machine-versal-2ve-2vm-vek385-revb-sdt-seg", "description": "Edge AI: AMD Versal AI Edge Gen 2 VEK385 Rev B -- AIE-MLv2 array, XRT (Vitis AI runtime not yet on wrynose)" }
                         ]
                     }
                 }
