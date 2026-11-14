@@ -1,0 +1,244 @@
+{
+    "description": "OpenEmbedded ROS - Wrynose Lyrical (AMD/Xilinx Kria + Versal). A separate config from oeros-wrynose-lyrical because meta-xilinx-multimedia sets PREFERRED_VERSION_gstreamer1.0* to AMD's 1.28.2+amd fork from its layer.conf, and bitbake-setup bb-layers are shared across every machine option in one config file -- adding it there would swap GStreamer for every other vendor's board too. AMD layers are pinned to the rel-v2026.2 release (LAYERSERIES_COMPAT wrynose). See docs/amd-xilinx.md.",
+    "sources": {
+        "bitbake": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/bitbake",
+                "branch": "2.18",
+                "rev": "2.18"
+            }
+        },
+        "openembedded-core": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/openembedded-core",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-clang": {
+            "git-remote": {
+                "uri": "https://github.com/kraj/meta-clang.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-intel-realsense": {
+            "git-remote": {
+                "uri": "https://github.com/realsenseai/meta-intel-realsense.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-oeros": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-oeros",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-tensorflow-lite": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-tensorflow-lite",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-onnxruntime": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-onnxruntime",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-arm": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-arm",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-openembedded": {
+            "git-remote": {
+                "uri": "https://github.com/openembedded/meta-openembedded",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-python-ai": {
+            "git-remote": {
+                "uri": "https://github.com/zboszor/meta-python-ai",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qt6": {
+            "git-remote": {
+                "uri": "https://code.qt.io/yocto/meta-qt6.git",
+                "branch": "6.11",
+                "rev": "6.11"
+            }
+        },
+        "meta-ros": {
+            "git-remote": {
+                "uri": "https://github.com/ros/meta-ros.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-virtualization": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-virtualization",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-zenoh": {
+            "git-remote": {
+                "uri": "https://github.com/Jarsop/meta-zenoh.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-xilinx": {
+            "git-remote": {
+                "uri": "https://github.com/Xilinx/meta-xilinx.git",
+                "branch": "rel-v2026.2",
+                "rev": "rel-v2026.2"
+            }
+        },
+        "meta-kria": {
+            "git-remote": {
+                "uri": "https://github.com/Xilinx/meta-kria.git",
+                "branch": "rel-v2026.2",
+                "rev": "rel-v2026.2"
+            }
+        },
+        "meta-amd-adaptive-socs": {
+            "git-remote": {
+                "uri": "https://github.com/Xilinx/meta-amd-adaptive-socs.git",
+                "branch": "rel-v2026.2",
+                "rev": "rel-v2026.2"
+            }
+        },
+        "meta-vitis": {
+            "git-remote": {
+                "uri": "https://github.com/Xilinx/meta-vitis.git",
+                "branch": "rel-v2026.2",
+                "rev": "rel-v2026.2"
+            }
+        },
+        "meta-openamp": {
+            "git-remote": {
+                "uri": "https://github.com/Xilinx/meta-openamp.git",
+                "branch": "rel-v2026.2",
+                "rev": "rel-v2026.2"
+            }
+        },
+        "meta-xilinx-tsn": {
+            "git-remote": {
+                "uri": "https://github.com/Xilinx/meta-xilinx-tsn.git",
+                "branch": "rel-v2026.2",
+                "rev": "rel-v2026.2"
+            }
+        },
+        "meta-jupyter": {
+            "git-remote": {
+                "uri": "https://github.com/Xilinx/meta-jupyter.git",
+                "branch": "rel-v2026.2",
+                "rev": "rel-v2026.2"
+            }
+        }
+    },
+    "bitbake-setup": {
+        "configurations": [
+            {
+                "name": "oeros-wrynose-lyrical-amd",
+                "description": "OpenEmbedded ROS Wrynose Lyrical -- AMD/Xilinx Kria + Versal Edge AI",
+                "setup-dir-name": "oeros-wrynose-lyrical-amd",
+                "bb-layers": [
+                    "openembedded-core/meta",
+                    "meta-openembedded/meta-filesystems",
+                    "meta-openembedded/meta-multimedia",
+                    "meta-openembedded/meta-networking",
+                    "meta-openembedded/meta-oe",
+                    "meta-openembedded/meta-perl",
+                    "meta-openembedded/meta-python",
+                    "meta-clang",
+                    "meta-intel-realsense",
+                    "meta-oeros",
+                    "meta-tensorflow-lite",
+                    "meta-onnxruntime",
+                    "meta-arm/meta-arm",
+                    "meta-arm/meta-arm-toolchain",
+                    "meta-xilinx/meta-microblaze",
+                    "meta-xilinx/meta-xilinx-core",
+                    "meta-xilinx/meta-xilinx-standalone",
+                    "meta-xilinx/meta-xilinx-standalone-sdt",
+                    "meta-xilinx/meta-xilinx-multimedia",
+                    "meta-xilinx/meta-xilinx-mali400",
+                    "meta-xilinx/meta-xilinx-gpu-malig78ae",
+                    "meta-kria/meta-kria-core",
+                    "meta-kria/meta-kria-bsp",
+                    "meta-amd-adaptive-socs/meta-amd-adaptive-socs-core",
+                    "meta-amd-adaptive-socs/meta-amd-adaptive-socs-bsp",
+                    "meta-vitis",
+                    "meta-openamp",
+                    "meta-xilinx-tsn",
+                    "meta-jupyter",
+                    "meta-python-ai",
+                    "meta-qt6",
+                    "meta-ros/meta-ros-common",
+                    "meta-ros/meta-ros2",
+                    "meta-ros/meta-ros2-lyrical",
+                    "meta-virtualization",
+                    "meta-zenoh/meta-zenoh"
+                ],
+                "bb-env-passthrough-additions": [
+                    "DL_DIR",
+                    "SSTATE_DIR"
+                ],
+                "oe-fragments-one-of": {
+                    "distro": {
+                        "description": "Target distributions",
+                        "options": [
+                            {
+                                "name": "distro/oeros",
+                                "description": "Oeros Reference Distro"
+                            }
+                        ]
+                    },
+                    "machine": {
+                        "description": "Target machines",
+                        "options": [
+                            {
+                                "name": "machine/qemuarm64",
+                                "description": "Machine configuration for running an ARMv8 system on QEMU"
+                            },
+                            {
+                                "name": "oeros/machine-k26-smk-kr-sdt",
+                                "description": "Edge AI + robotics: AMD Kria KR260 Robotics Starter Kit (K26 SOM, Zynq UltraScale+ EV) -- XRT/DFX accelerators, ros2_control, TSN"
+                            },
+                            {
+                                "name": "oeros/machine-k26-smk-kv-sdt",
+                                "description": "Edge AI: AMD Kria KV260 Vision AI Starter Kit (K26 SOM) -- XRT/DFX accelerators, camera pipelines (VCU with oeros/amd-proprietary)"
+                            },
+                            {
+                                "name": "oeros/machine-k24-smk-kd-sdt",
+                                "description": "Robotics/industrial: AMD Kria KD240 Drives Starter Kit (K24 SOM) -- motor control, ros2_control, CAN/TSN"
+                            },
+                            {
+                                "name": "oeros/machine-versal-vek280-sdt-seg",
+                                "description": "Edge AI: AMD Versal AI Edge VEK280 -- AIE-ML array, XRT (Vitis AI runtime not yet on wrynose)"
+                            },
+                            {
+                                "name": "oeros/machine-versal-2ve-2vm-vek385-revb-sdt-seg",
+                                "description": "Edge AI: AMD Versal AI Edge Gen 2 VEK385 Rev B -- AIE-MLv2 array, XRT (Vitis AI runtime not yet on wrynose)"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "version": "1.0"
+}
