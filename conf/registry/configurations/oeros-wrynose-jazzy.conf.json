@@ -88,6 +88,13 @@
                 "rev": "wrynose"
             }
         },
+        "meta-security": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-security",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
         "meta-qt6": {
             "git-remote": {
                 "uri": "https://code.qt.io/yocto/meta-qt6.git",
@@ -121,6 +128,8 @@
                     "meta-ros/meta-ros2",
                     "meta-ros/meta-ros2-jazzy",
                     "meta-virtualization",
+                    "meta-security",
+                    "meta-security/meta-tpm",
                     "meta-qt6"
                 ],
                 "bb-env-passthrough-additions": ["DL_DIR","SSTATE_DIR"],

@@ -92,6 +92,13 @@
                 "rev": "wrynose"
             }
         },
+        "meta-security": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-security",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
         "meta-zenoh": {
             "git-remote": {
                 "uri": "https://github.com/Jarsop/meta-zenoh.git",
@@ -191,6 +198,8 @@
                     "meta-ros/meta-ros2",
                     "meta-ros/meta-ros2-lyrical",
                     "meta-virtualization",
+                    "meta-security",
+                    "meta-security/meta-tpm",
                     "meta-zenoh/meta-zenoh"
                 ],
                 "bb-env-passthrough-additions": [

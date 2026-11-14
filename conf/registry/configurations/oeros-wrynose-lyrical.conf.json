@@ -179,6 +179,13 @@
                 "rev": "wrynose"
             }
         },
+        "meta-security": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-security",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
         "meta-yocto": {
             "git-remote": {
                 "uri": "https://git.yoctoproject.org/meta-yocto",
@@ -239,6 +246,8 @@
                     "meta-ros/meta-ros-common",
                     "meta-ros/meta-ros2",
                     "meta-ros/meta-ros2-lyrical",
+                    "meta-security",
+                    "meta-security/meta-tpm",
                     "meta-virtualization",
                     "meta-yocto/meta-yocto-bsp",
                     "meta-zenoh/meta-zenoh"
