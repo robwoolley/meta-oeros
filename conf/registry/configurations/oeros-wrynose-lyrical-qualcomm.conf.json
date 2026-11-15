@@ -120,6 +120,13 @@
                 "rev": "wrynose"
             }
         },
+        "meta-ai": {
+            "git-remote": {
+                "uri": "https://github.com/qualcomm-linux/meta-ai",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
         "meta-lts-mixins": {
             "git-remote": {
                 "uri": "https://git.yoctoproject.org/meta-lts-mixins",
@@ -166,6 +173,7 @@
                     "meta-tensorflow-lite",
                     "meta-onnxruntime",
                     "meta-lts-mixins",
+                    "meta-ai",
                     "meta-qcom",
                     "meta-qcom-distro",
                     "meta-qcom-robotics-sdk",

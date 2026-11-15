@@ -126,12 +126,15 @@ CONFIGS = {
         "sources": {
             "meta-freescale": git("https://github.com/Freescale/meta-freescale", W),
             "meta-freescale-distro": git("https://github.com/Freescale/meta-freescale-distro", W),
+            # base tensorflow-lite, delegate, tim-vx and nnstreamer recipes;
+            # meta-imx-ml only bbappends them (imx-setup-release.sh adds it too)
+            "meta-freescale-ml": git("https://github.com/Freescale/meta-freescale-ml", W),
             "meta-yocto": git("https://git.yoctoproject.org/meta-yocto", W),
             "meta-imx": git("https://github.com/nxp-imx/meta-imx", "wrynose-6.18.37-2.1.0"),
         },
         # meta-imx-sdk LAYERDEPENDS on freescale-distro, which LAYERDEPENDS on
         # yocto (meta-yocto/meta-poky)
-        "layers": ["meta-freescale", "meta-freescale-distro", "meta-yocto/meta-poky",
+        "layers": ["meta-freescale", "meta-freescale-distro", "meta-freescale-ml", "meta-yocto/meta-poky",
                    "meta-imx/meta-imx-bsp", "meta-imx/meta-imx-sdk", "meta-imx/meta-imx-ml"],
         "machines": [
             ("oeros/machine-imx8mp-lpddr4-evk", "Edge AI: NXP i.MX 8M Plus -- eIQ, VX delegate on the Vivante NPU (needs oeros/nxp-proprietary)"),
@@ -146,13 +149,16 @@ CONFIGS = {
             "meta-qcom": git("https://github.com/qualcomm-linux/meta-qcom", W),
             "meta-qcom-distro": git("https://github.com/qualcomm-linux/meta-qcom-distro", W),
             "meta-qcom-robotics-sdk": git("https://github.com/qualcomm-linux/meta-qcom-robotics-sdk", W),
+            # collection "ai": enables meta-qcom's dynamic-layers/ai
+            # (onnxruntime-qnn plugin EP), as in meta-qcom's ci/qcom-distro.yml
+            "meta-ai": git("https://github.com/qualcomm-linux/meta-ai", W),
             # LAYERDEPENDS of meta-qcom (lts-linux-firmware-mixin) and of
             # meta-qcom-distro (selinux, sota); branches as in their ci/*.yml
             "meta-lts-mixins": git("https://git.yoctoproject.org/meta-lts-mixins", "wrynose/linux-firmware"),
             "meta-selinux": git("https://git.yoctoproject.org/meta-selinux", W),
             "meta-updater": git("https://github.com/uptane/meta-updater", W),
         },
-        "layers": ["meta-lts-mixins", "meta-qcom", "meta-qcom-distro", "meta-qcom-robotics-sdk",
+        "layers": ["meta-lts-mixins", "meta-ai", "meta-qcom", "meta-qcom-distro", "meta-qcom-robotics-sdk",
                    "meta-selinux", "meta-updater"],
         "machines": [
             ("oeros/machine-qcs6490-rb3gen2-core-kit", "Edge AI: Qualcomm RB3 Gen 2 -- QAIRT/QNN on Hexagon (with oeros/qcom-proprietary)"),

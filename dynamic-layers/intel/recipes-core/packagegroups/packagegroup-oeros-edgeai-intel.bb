@@ -18,7 +18,11 @@ RDEPENDS:${PN} = " \
     ${@bb.utils.contains('MACHINE_FEATURES', 'edgeai-robotics-ai-suite', '${PN}-robotics-ai-suite', '', d)} \
 "
 
-RDEPENDS:${PN}-runtime = "openvino-inference-engine openvino-model-optimizer onnxruntime-openvino-ep python3-openvino"
+# No layer on wrynose builds the ONNX Runtime OpenVINO EP (meta-openvino has
+# only openvino-inference-engine), so it is not listed; ONNX models run on
+# OpenVINO directly or on the ORT CPU EP. openvino-model-optimizer is a
+# known pre-existing break (docs/edgeai.md) left for a separate fix.
+RDEPENDS:${PN}-runtime = "openvino-inference-engine openvino-model-optimizer python3-openvino"
 RDEPENDS:${PN}-gpu = "intel-compute-runtime intel-graphics-compiler level-zero onednn intel-media-driver"
 RDEPENDS:${PN}-npu = "intel-npu-driver linux-firmware-intel-vpu"
 RDEPENDS:${PN}-ros = "ros2-openvino-toolkit openvino-model-server"

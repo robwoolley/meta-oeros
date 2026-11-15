@@ -2,6 +2,17 @@ SUMMARY = "Vendor-neutral inference runtimes and pipeline plumbing"
 LICENSE = "MIT"
 inherit packagegroup
 
+# OEROS_EDGEAI_TFLITE* below depend on MACHINE
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+# TensorFlow Lite package names. The default is meta-tensorflow-lite
+# (C++ library and Python bindings in separate packages). A vendor whose
+# BSP ships its own TFLite build that its NPU delegates link against
+# overrides these in conf/machine/include/oeros-edgeai-<vendor>.inc, so an
+# image doesn't carry two TFLite builds (see docs/edgeai.md).
+OEROS_EDGEAI_TFLITE ?= "libtensorflow-lite"
+OEROS_EDGEAI_TFLITE_PYTHON ?= "python3-tensorflow-lite"
+
 PACKAGES = "${PN} ${PN}-runtimes ${PN}-vision ${PN}-pipeline ${PN}-python ${PN}-tools"
 
 RDEPENDS:${PN} = "${PN}-runtimes ${PN}-vision ${PN}-pipeline ${PN}-python"
@@ -9,7 +20,7 @@ RDEPENDS:${PN} = "${PN}-runtimes ${PN}-vision ${PN}-pipeline ${PN}-python"
 # meta-onnxruntime / meta-tensorflow-lite; vendor EPs are added in the vendor groups
 RDEPENDS:${PN}-runtimes = " \
     onnxruntime \
-    libtensorflow-lite \
+    ${OEROS_EDGEAI_TFLITE} \
     flatbuffers \
     protobuf \
 "
@@ -36,7 +47,7 @@ RDEPENDS:${PN}-pipeline = " \
 RDEPENDS:${PN}-python = " \
     python3-numpy \
     onnxruntime \
-    python3-tensorflow-lite \
+    ${OEROS_EDGEAI_TFLITE_PYTHON} \
     python3-opencv \
     python3-pillow \
 "

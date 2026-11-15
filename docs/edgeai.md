@@ -54,8 +54,8 @@ drift):
 |---|---|---|
 | `oeros-wrynose-lyrical` | qemu*, generic*, Raspberry Pi | meta-raspberrypi |
 | `oeros-wrynose-lyrical-nvidia` | Jetson Orin Nano, AGX Orin | meta-tegra, meta-tegra-community |
-| `oeros-wrynose-lyrical-nxp` | i.MX 8M Plus, 93, 95 EVKs | meta-freescale, meta-freescale-distro, meta-yocto/meta-poky, meta-imx (bsp, sdk, ml) |
-| `oeros-wrynose-lyrical-qualcomm` | RB3 Gen 2, QCS9100 Ride SX, IQ-9075, IQ-8275 | meta-qcom, meta-qcom-distro, meta-qcom-robotics-sdk, meta-lts-mixins (`wrynose/linux-firmware`), meta-selinux, meta-updater |
+| `oeros-wrynose-lyrical-nxp` | i.MX 8M Plus, 93, 95 EVKs | meta-freescale, meta-freescale-distro, meta-freescale-ml, meta-yocto/meta-poky, meta-imx (bsp, sdk, ml) |
+| `oeros-wrynose-lyrical-qualcomm` | RB3 Gen 2, QCS9100 Ride SX, IQ-9075, IQ-8275 | meta-ai, meta-qcom, meta-qcom-distro, meta-qcom-robotics-sdk, meta-lts-mixins (`wrynose/linux-firmware`), meta-selinux, meta-updater |
 | `oeros-wrynose-lyrical-ti` | AM62A, AM68, AM69 | meta-arm, meta-ti (bsp, extras, test), meta-arago (distro, extras), meta-tisdk/meta-ti-foundational, meta-edgeai |
 | `oeros-wrynose-lyrical-intel` | intel-corei7-64 | meta-intel, meta-openvino |
 | `oeros-wrynose-lyrical-amd` | KR260, KV260, KD240, VEK280, VEK385 (+ multidomain) | see `docs/amd-xilinx.md` |
@@ -74,6 +74,32 @@ those vendors could not have parsed: meta-qcom needs
 (meta-updater) and `tpm-layer`; meta-imx-sdk needs `freescale-distro`,
 which needs `yocto`; meta-edgeai needs `meta-ti-test`,
 `meta-arago-distro`, `meta-arago-extras` and `meta-ti-foundational`.
+
+Two more layers are needed for the vendors' inference runtimes to parse,
+not just their BSPs:
+
+- **meta-freescale-ml** (NXP): holds the base `tensorflow-lite`, delegate,
+  `tim-vx` and `nnstreamer` recipes that meta-imx-ml only bbappends.
+  Without it those bbappends dangle. NXP's own `imx-setup-release.sh`
+  adds it.
+- **meta-ai** (Qualcomm, collection `ai`): meta-qcom only parses its
+  `dynamic-layers/ai` (the `onnxruntime-qnn` plugin EP) when this layer is
+  present, as in meta-qcom's `ci/qcom-distro.yml`. At priority 10 its
+  `onnxruntime` 1.26.0 replaces meta-onnxruntime's on Qualcomm builds;
+  that build has **no Python bindings**, so `import onnxruntime` is not
+  available on Qualcomm images. meta-onnxruntime's pinned 1.22.0 predates
+  the ORT plugin-EP API that `onnxruntime-qnn` 2.x needs.
+
+Which `onnxruntime` each vendor actually builds (highest layer priority
+wins, and every vendor EP is compiled into that recipe, not shipped as a
+separate package):
+
+| Vendor | `onnxruntime` from | Version | EPs |
+|---|---|---|---|
+| generic, TI, Intel, AMD | meta-onnxruntime (priority 6) | 1.22.0 | CPU only (TI: verify whether meta-edgeai overrides it) |
+| Nvidia | meta-tegra-community (priority 20) | 1.29.1 | CUDA, TensorRT |
+| NXP | meta-imx-ml (priority 9) | 1.24.3 | VSINPU (i.MX 8), Neutron (i.MX 95) |
+| Qualcomm | meta-ai (priority 10) + `onnxruntime-qnn` plugin | 1.26.0 + 2.4.0 | CPU + QNN (plugin EP) |
 
 ## Proprietary opt-in
 
@@ -101,8 +127,8 @@ self-contained: it sets `MACHINE`, pulls in the vendor `.inc`, sets
 | Vendor | MACHINE(s) | Vendor layers | Packagegroup | Accelerator path |
 |---|---|---|---|---|
 | Nvidia | jetson-orin-nano-devkit (Super nvpmodel by default), jetson-agx-orin-devkit | meta-tegra, **meta-tegra-community** (DeepStream: `deepstream-9.1`) | packagegroup-oeros-edgeai-tegra (opt-in) | CUDA/TensorRT/VPI, DeepStream, Isaac ROS |
-| NXP | imx8mp-lpddr4-evk, imx93-11x11-lpddr4x-evk, imx95-19x19-lpddr5-evk | meta-freescale, **meta-freescale-distro**, **meta-yocto/meta-poky**, meta-imx (meta-imx-bsp/-sdk/-ml) | packagegroup-oeros-edgeai-imx | TFLite VX/Ethos-U/Neutron delegates, ORT VSI-NPU EP, NNStreamer |
-| Qualcomm | qcs6490-rb3gen2-core-kit, qcs9100-ride-sx | meta-qcom, meta-qcom-distro, **meta-lts-mixins**, **meta-selinux**, **meta-updater** | packagegroup-oeros-edgeai-qcom (**runtime only**) | QAIRT/QNN on Hexagon, TFLite/ORT QNN EP |
+| NXP | imx8mp-lpddr4-evk, imx93-11x11-lpddr4x-evk, imx95-19x19-lpddr5-evk | meta-freescale, **meta-freescale-distro**, **meta-freescale-ml**, **meta-yocto/meta-poky**, meta-imx (meta-imx-bsp/-sdk/-ml) | packagegroup-oeros-edgeai-imx | TFLite VX/Ethos-U/Neutron delegates, ORT VSI-NPU EP, NNStreamer |
+| Qualcomm | qcs6490-rb3gen2-core-kit, qcs9100-ride-sx | **meta-ai**, meta-qcom, meta-qcom-distro, **meta-lts-mixins**, **meta-selinux**, **meta-updater** | packagegroup-oeros-edgeai-qcom (**runtime only**) | QAIRT/QNN on Hexagon, TFLite/ORT QNN EP |
 | Qualcomm (robotics) | iq-9075-evk, iq-8275-evk | as above + meta-qcom-robotics-sdk | packagegroup-oeros-edgeai-qcom (**runtime + robotics**) | QAIRT/QNN on Hexagon + QIR SDK: Nav2/MoveIt2, QRB-ROS nodes |
 | TI | am62axx-evk, am68-sk, am69-sk | meta-arm, meta-ti (meta-ti-bsp/-extras/**-test**), **meta-arago** (distro, extras), **meta-tisdk/meta-ti-foundational**, meta-edgeai | packagegroup-oeros-edgeai-ti | TIDL on C7x/MMA, TIOVX, edgeai-gst, robotics kit |
 | Intel | intel-corei7-64 | meta-intel, meta-openvino | packagegroup-oeros-edgeai-intel | OpenVINO CPU/iGPU/NPU, ORT OpenVINO EP, compute-runtime |
@@ -112,6 +138,11 @@ self-contained: it sets `MACHINE`, pulls in the vendor `.inc`, sets
 Common to all: see "Configurations" above → packagegroup-oeros-edgeai-core
 (`onnxruntime` incl. its Python bindings, `onnxruntime-tools`,
 `libtensorflow-lite`, `python3-tensorflow-lite`, OpenCV, GStreamer) + -ros.
+On NXP the TFLite entries are swapped for meta-freescale-ml's
+`tensorflow-lite` (which the NXP delegates link against and which carries
+the Python module) through `OEROS_EDGEAI_TFLITE` /
+`OEROS_EDGEAI_TFLITE_PYTHON` in `oeros-edgeai-imx.inc`, so an i.MX image
+doesn't carry two TFLite builds.
 (The Intel-robotics row above is the one exception: it lives on
 `oeros-wrynose-jazzy`, using **meta-ros2-jazzy** instead.)
 
@@ -148,13 +179,14 @@ As of 2026-09-19, these vendor layers have no branch past `scarthgap`
   present directly in `meta-qcom`'s `wrynose` branch under
   `recipes-multimedia/`, `recipes-graphics/`, and a new `recipes-ml/`
   (which now ships a real `qairt-sdk` recipe) plus a `dynamic-layers/ai/`
-  collection with a real `onnxruntime-qnn` recipe. **This was not
-  re-audited against `packagegroup-oeros-edgeai-qcom`'s `-runtime` list in
-  this pass** — the package names there (`qnn-sdk`, `qairt-runtime`,
-  `onnxruntime-qnn-ep`) should be re-verified against `meta-qcom`'s actual
-  `recipes-ml/qairt` and `dynamic-layers/ai/recipes-ml/onnxruntime-qnn`
-  recipes (real PNs look like `qairt-sdk` and `onnxruntime-qnn`, not
-  `qairt-runtime`/`onnxruntime-qnn-ep`) as a follow-up. `meta-qcom-qim-
+  collection with a real `onnxruntime-qnn` recipe. **Re-audited
+  2026-11-15:** `-runtime` is now `qairt-sdk` (2.50, which carries QNN,
+  SNPE and the HTP backends) plus `onnxruntime-qnn` (2.4.0 plugin EP, which
+  needs meta-ai, now in the Qualcomm config). The Hexagon skel libraries
+  (`qairt-sdk-hexagon-vNN`), the board's `hexagon-dsp-binaries-*` and
+  FastCV come from each meta-qcom MACHINE's
+  `MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS`. There is no TFLite QNN delegate
+  recipe on wrynose. `meta-qcom-qim-
   product-sdk` itself is unaffected by the hwe merge and remains at
   `scarthgap`.
 
@@ -328,22 +360,33 @@ not a verification gap, and needs an explicit decision before proceeding.
   and `NobuoTsukamoto/meta-onnxruntime`, but both only have a `walnascar`
   branch (one release behind wrynose). Forked to
   `robwoolley/meta-tensorflow-lite` and `robwoolley/meta-onnxruntime`.
-  **Update (feature/edgeai-v3):** upstream `main` is maintained (ONNX
-  Runtime 1.31.1, TensorFlow Lite 2.21) but declares only `blacksail`. The
-  forks' `wrynose` branches are now upstream `main` plus one commit adding
-  `wrynose` to `LAYERSERIES_COMPAT`; the old walnascar-based branches are
-  kept as `wrynose-walnascar`. Re-point at upstream once it cuts a native
-  wrynose branch.
+  Upstream `main` is maintained (ONNX Runtime 1.31.1, TensorFlow Lite
+  2.21) but declares only `blacksail`. **Correction (2026-11-15):** the
+  forks' `wrynose` branches, which every config pins, are still the old
+  walnascar-based content (ONNX Runtime 1.22.0, TensorFlow Lite 2.19.1)
+  with `wrynose` added to `LAYERSERIES_COMPAT`. The rebase onto upstream
+  `main` plus a `LAYERSERIES_COMPAT` commit exists only on
+  `feature/wrynose-upstream-main` in each fork; no `wrynose-walnascar`
+  branch exists. Moving `wrynose` to that rebase is a separate decision
+  (it changes what every config builds). Re-point at upstream once it
+  cuts a native wrynose branch.
 - Package names those layers really provide: the ONNX Runtime Python
   bindings are inside the `onnxruntime` package (there is no
   `python3-onnxruntime`); TensorFlow Lite's C++ library recipe is
   `libtensorflow-lite` (there is no `tensorflow-lite`). `onnxruntime-tools`
   is created by this layer's `dynamic-layers/meta-onnxruntime` bbappend from
   the wheel's `onnxruntime/{quantization,transformers,tools}`, matching the
-  frozen PyPI `onnxruntime-tools` module. The vendor groups still use the
-  draft's EP/delegate names (`onnxruntime-qnn-ep`, `onnxruntime-tidl`,
-  `tensorflow-lite-vx-delegate`, `tensorflow-lite-dev`, ...); see the
-  re-check results in `docs/amd-xilinx.md`.
+  frozen PyPI `onnxruntime-tools` module. The Nvidia, NXP, Qualcomm and
+  Intel groups were re-checked against their wrynose vendor layers on
+  2026-11-15: draft names that no recipe provides (`onnxruntime-*-ep`,
+  `qnn-sdk`, `qairt-runtime`, `snpe`, `tensorflow-lite-qnn-delegate`,
+  `tensorrt-core`, `vpi`, `nvidia-container-runtime`, `nn-imx`,
+  `eiq-toolkit-inference`) were replaced or dropped. The i.MX 93 Ethos-U
+  stack was gated on an `ethosu` MACHINE_FEATURE that no i.MX machine
+  sets; it is now keyed on the SoC override, and i.MX 95 gains the Neutron
+  delegate. The TI names (`onnxruntime-tidl`, `tensorflow-lite-tidl`, ...)
+  are still unverified, since git.ti.com was unreachable when this was
+  checked.
 - `meta-imx` versions by kernel/BSP release, not Yocto codename; pinned to
   `wrynose-6.18.37-2.1.0` (the newer of the two available wrynose-era trains,
   the other being `wrynose-6.18.20-2.0.0`). Its `layer.conf` declares
@@ -378,12 +421,6 @@ not a verification gap, and needs an explicit decision before proceeding.
   the Isaac ROS recipes "in this layer" do not exist yet.
 - Vendor package names in the `-<vendor>` groups follow the vendor layers'
   current recipe names as of 2026-09-19; expect renames between releases.
-- `packagegroup-oeros-edgeai-qcom`'s `-runtime` RDEPENDS on a plain
-  `hexagon-dsp-binaries`, but `meta-qcom`'s own
-  `packagegroup-rb3gen2.bb` only ever RDEPENDS on the board-specific
-  `hexagon-dsp-binaries-thundercomm-rb3gen2-adsp` /
-  `-cdsp`. `hexagon-dsp-binaries` as a bare name was not found in
-  `meta-qcom`; verify the real PN before building QCS6490.
 - (this branch) `object-detection-tutorial`'s `openvino-node` dependency
   doesn't exist anywhere, including in the real upstream
   `intel/ros2_openvino_toolkit` project — see the Intel Robotics AI Suite

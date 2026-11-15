@@ -34,10 +34,17 @@ RDEPENDS:${PN} = " \
 "
 
 # meta-qcom (prebuilt Hexagon/FastCV) + meta-qcom-distro
+# qairt-sdk (meta-qcom recipes-ml) carries QNN, SNPE and the HTP backend
+# libraries; onnxruntime-qnn is the ONNX Runtime QNN plugin EP from
+# meta-qcom's dynamic-layers/ai, parsed only when qualcomm-linux/meta-ai
+# (collection "ai") is in BBLAYERS. The per-SoC qairt-sdk-hexagon-vNN skel
+# libraries, hexagon-dsp-binaries-<board>-* and the FastCV binaries are
+# already pulled in by each meta-qcom MACHINE's
+# MACHINE_ESSENTIAL_EXTRA_RRECOMMENDS, so they are not repeated here.
+# qairt-sdk ships no TFLite QNN delegate on wrynose.
 OEROS_QC_RUNTIME = " \
-    qnn-sdk qairt-runtime snpe \
-    tensorflow-lite-qnn-delegate onnxruntime-qnn-ep \
-    hexagon-dsp-binaries qcom-fastcv-binaries \
+    qairt-sdk \
+    onnxruntime-qnn \
 "
 
 # meta-qcom-robotics-sdk packagegroups: community ROS 2 + Nav2/MoveIt2
@@ -51,6 +58,6 @@ RDEPENDS:${PN}-robotics = " \
     ${@'packagegroup-oss-with-prop-deps' if d.getVar('OEROS_QC') else ''} \
 "
 
-OEROS_QC_DEV = "qnn-sdk-dev qairt-tools"
+OEROS_QC_DEV = "qairt-sdk-dev"
 RDEPENDS:${PN}-runtime = "${@d.getVar('OEROS_QC_RUNTIME') if d.getVar('OEROS_QC') else ''}"
 RDEPENDS:${PN}-dev = "${@d.getVar('OEROS_QC_DEV') if d.getVar('OEROS_QC') else ''}"

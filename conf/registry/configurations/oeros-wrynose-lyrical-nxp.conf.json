@@ -113,6 +113,13 @@
                 "rev": "wrynose"
             }
         },
+        "meta-freescale-ml": {
+            "git-remote": {
+                "uri": "https://github.com/Freescale/meta-freescale-ml",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
         "meta-yocto": {
             "git-remote": {
                 "uri": "https://git.yoctoproject.org/meta-yocto",
@@ -153,6 +160,7 @@
                     "meta-onnxruntime",
                     "meta-freescale",
                     "meta-freescale-distro",
+                    "meta-freescale-ml",
                     "meta-yocto/meta-poky",
                     "meta-imx/meta-imx-bsp",
                     "meta-imx/meta-imx-sdk",

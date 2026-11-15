@@ -13,16 +13,19 @@ PACKAGES = "${PN} ${PN}-runtime ${PN}-multimedia ${PN}-ros ${PN}-dev"
 OEROS_NV = "${@bb.utils.contains('MACHINE_FEATURES', 'edgeai-nvidia-proprietary', '1', '', d)}"
 RDEPENDS:${PN} = "${@'${PN}-runtime ${PN}-multimedia ${PN}-ros' if d.getVar('OEROS_NV') else ''}"
 
+# onnxruntime comes from meta-tegra-community (priority 20, built with the
+# CUDA and TensorRT EPs, Python bindings in python3-onnxruntime); there is
+# no separate EP package. TensorRT's PN is tensorrt and VPI's is libnvvpi4.
 OEROS_NV_RUNTIME = " \
-    cuda-cudart cuda-libraries cudnn tensorrt-core tensorrt-plugins \
-    onnxruntime-tensorrt-ep \
-    tegra-libraries-multimedia vpi \
+    cuda-cudart cuda-libraries cudnn tensorrt tensorrt-plugins \
+    onnxruntime python3-onnxruntime \
+    tegra-libraries-multimedia libnvvpi4 \
 "
 # DeepStream comes from meta-tegra-community, whose recipe name carries
 # the major version (deepstream-9.1); meta-tegra itself has no deepstream.
 OEROS_NV_MULTIMEDIA = " \
     gstreamer1.0-plugins-nvvideo4linux2 gstreamer1.0-plugins-nvarguscamerasrc \
-    deepstream-9.1 nvidia-container-runtime \
+    deepstream-9.1 nvidia-container-toolkit \
 "
 # Isaac ROS built from source against meta-tegra TensorRT (recipes in this layer)
 OEROS_NV_ROS = " \
