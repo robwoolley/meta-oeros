@@ -22,5 +22,10 @@ RDEPENDS:${PN}-runtime = " \
     onnxruntime \
     ${OEROS_IMX_NPU} \
 "
-RDEPENDS:${PN}-pipeline = "nnstreamer nnstreamer-tensorflow-lite gstreamer1.0-plugins-imx"
-RDEPENDS:${PN}-dev = "tensorflow-lite-dev onnxruntime-dev opencl-headers imx-gpu-sdk"
+RDEPENDS:${PN}-pipeline = "nnstreamer nnstreamer-tensorflow-lite imx-gst1.0-plugin"
+# opencl-headers is left out: meta-imx-sdk's recipe and imx-gpu-viv both provide
+# it on the GPU SoCs, so naming it here makes bitbake stop on the ambiguity.
+# imx-gpu-sdk is COMPATIBLE_MACHINE "imxgpu" (not i.MX 93/95).
+OEROS_IMX_GPUSDK = ""
+OEROS_IMX_GPUSDK:imxgpu = "imx-gpu-sdk"
+RDEPENDS:${PN}-dev = "tensorflow-lite-dev onnxruntime-dev ${OEROS_IMX_GPUSDK}"
