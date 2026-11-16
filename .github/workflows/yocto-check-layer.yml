@@ -95,7 +95,8 @@ jobs:
           # yocto-check-layer adds the layer under test itself, and refuses to
           # run if it's already in BBLAYERS
           sed -i '\#/layers/meta-oeros \\$#d' "$setup/build/conf/bblayers.conf"
-          if grep -q meta-oeros "$setup/build/conf/bblayers.conf"; then
+          cat "$setup/build/conf/bblayers.conf"
+          if grep -q '/layers/meta-oeros\b' "$setup/build/conf/bblayers.conf"; then
             echo "::error::meta-oeros is still in bblayers.conf"
             exit 1
           fi
