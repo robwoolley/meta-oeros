@@ -1,5 +1,5 @@
 {
-    "description": "OpenEmbedded ROS - Wrynose Lyrical (Qualcomm Dragonwing Edge AI + QIR SDK). QAIRT/FastCV/Hexagon binaries are opt-in: enable oeros/qcom-proprietary. See docs/edgeai.md.",
+    "description": "OpenEmbedded ROS - Wrynose Lyrical (Qualcomm Dragonwing Edge AI). QAIRT/FastCV/Hexagon binaries are opt-in: enable oeros/qcom-proprietary. The QIR SDK (iq-9075-evk, iq-8275-evk) is Jazzy-only and lives in oeros-wrynose-jazzy-qualcomm. See docs/edgeai.md.",
     "sources": {
         "bitbake": {
             "git-remote": {
@@ -113,13 +113,6 @@
                 "rev": "wrynose"
             }
         },
-        "meta-qcom-robotics-sdk": {
-            "git-remote": {
-                "uri": "https://github.com/qualcomm-linux/meta-qcom-robotics-sdk",
-                "branch": "wrynose",
-                "rev": "wrynose"
-            }
-        },
         "meta-ai": {
             "git-remote": {
                 "uri": "https://github.com/qualcomm-linux/meta-ai",
@@ -176,7 +169,6 @@
                     "meta-ai",
                     "meta-qcom",
                     "meta-qcom-distro",
-                    "meta-qcom-robotics-sdk",
                     "meta-selinux",
                     "meta-updater",
                     "meta-python-ai",
@@ -201,9 +193,7 @@
                         "description": "Target machines",
                         "options" : [
                             { "name": "oeros/machine-qcs6490-rb3gen2-core-kit", "description": "Edge AI: Qualcomm RB3 Gen 2 -- QAIRT/QNN on Hexagon (with oeros/qcom-proprietary)" },
-                            { "name": "oeros/machine-qcs9100-ride-sx", "description": "Edge AI: Qualcomm QCS9100 Ride SX -- QAIRT/QNN on Hexagon (with oeros/qcom-proprietary)" },
-                            { "name": "oeros/machine-iq-9075-evk", "description": "Edge AI + robotics: Qualcomm Dragonwing IQ-9075 EVK (QCS9100 family) -- Qualcomm Intelligent Robotics SDK (Nav2/MoveIt2, QRB-ROS nodes); QAIRT/QNN with oeros/qcom-proprietary" },
-                            { "name": "oeros/machine-iq-8275-evk", "description": "Edge AI + robotics: Qualcomm Dragonwing IQ-8275 EVK (QCS8300 family) -- Qualcomm Intelligent Robotics SDK (Nav2/MoveIt2, QRB-ROS nodes); QAIRT/QNN with oeros/qcom-proprietary" }
+                            { "name": "oeros/machine-qcs9100-ride-sx", "description": "Edge AI: Qualcomm QCS9100 Ride SX -- QAIRT/QNN on Hexagon (with oeros/qcom-proprietary)" }
                         ]
                     }
                 }

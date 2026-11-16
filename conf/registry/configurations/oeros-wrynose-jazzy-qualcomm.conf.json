@@ -1,0 +1,212 @@
+{
+    "description": "OpenEmbedded ROS - Wrynose Jazzy (Qualcomm Dragonwing Edge AI + QIR SDK). QAIRT/FastCV/Hexagon binaries are opt-in: enable oeros/qcom-proprietary. The QIR SDK is built against ROS 2 Jazzy (its CI uses meta-ros2-jazzy), so this config uses Jazzy instead of Lyrical. See docs/edgeai.md.",
+    "sources": {
+        "bitbake": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/bitbake",
+                "branch": "2.18",
+                "rev": "2.18"
+            }
+        },
+        "openembedded-core": {
+            "git-remote": {
+                "uri": "https://git.openembedded.org/openembedded-core",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-clang": {
+            "git-remote": {
+                "uri": "https://github.com/kraj/meta-clang.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-intel-realsense": {
+            "git-remote": {
+                "uri": "https://github.com/realsenseai/meta-intel-realsense.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-oeros": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-oeros",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-tensorflow-lite": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-tensorflow-lite",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-onnxruntime": {
+            "git-remote": {
+                "uri": "https://github.com/robwoolley/meta-onnxruntime",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-openembedded": {
+            "git-remote": {
+                "uri": "https://github.com/openembedded/meta-openembedded",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-python-ai": {
+            "git-remote": {
+                "uri": "https://github.com/zboszor/meta-python-ai",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qt6": {
+            "git-remote": {
+                "uri": "https://code.qt.io/yocto/meta-qt6.git",
+                "branch": "6.11",
+                "rev": "6.11"
+            }
+        },
+        "meta-ros": {
+            "git-remote": {
+                "uri": "https://github.com/ros/meta-ros.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-virtualization": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-virtualization",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-security": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-security",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-zenoh": {
+            "git-remote": {
+                "uri": "https://github.com/Jarsop/meta-zenoh.git",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qcom": {
+            "git-remote": {
+                "uri": "https://github.com/qualcomm-linux/meta-qcom",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qcom-distro": {
+            "git-remote": {
+                "uri": "https://github.com/qualcomm-linux/meta-qcom-distro",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-qcom-robotics-sdk": {
+            "git-remote": {
+                "uri": "https://github.com/qualcomm-linux/meta-qcom-robotics-sdk",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-ai": {
+            "git-remote": {
+                "uri": "https://github.com/qualcomm-linux/meta-ai",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-lts-mixins": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-lts-mixins",
+                "branch": "wrynose/linux-firmware",
+                "rev": "wrynose/linux-firmware"
+            }
+        },
+        "meta-selinux": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-selinux",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        },
+        "meta-updater": {
+            "git-remote": {
+                "uri": "https://github.com/uptane/meta-updater",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
+        }
+    },
+    "bitbake-setup": {
+        "configurations": [
+            {
+                "name": "oeros-wrynose-jazzy-qualcomm",
+                "description": "OpenEmbedded ROS Wrynose Jazzy -- Qualcomm Dragonwing Edge AI",
+                "setup-dir-name": "oeros-wrynose-jazzy-qualcomm",
+                "bb-layers": [
+                    "openembedded-core/meta",
+                    "meta-openembedded/meta-filesystems",
+                    "meta-openembedded/meta-gnome",
+                    "meta-openembedded/meta-initramfs",
+                    "meta-openembedded/meta-multimedia",
+                    "meta-openembedded/meta-networking",
+                    "meta-openembedded/meta-oe",
+                    "meta-openembedded/meta-perl",
+                    "meta-openembedded/meta-python",
+                    "meta-openembedded/meta-webserver",
+                    "meta-openembedded/meta-xfce",
+                    "meta-clang",
+                    "meta-intel-realsense",
+                    "meta-oeros",
+                    "meta-tensorflow-lite",
+                    "meta-onnxruntime",
+                    "meta-lts-mixins",
+                    "meta-ai",
+                    "meta-qcom",
+                    "meta-qcom-distro",
+                    "meta-qcom-robotics-sdk",
+                    "meta-selinux",
+                    "meta-updater",
+                    "meta-python-ai",
+                    "meta-qt6",
+                    "meta-ros/meta-ros-common",
+                    "meta-ros/meta-ros2",
+                    "meta-ros/meta-ros2-jazzy",
+                    "meta-virtualization",
+                    "meta-security",
+                    "meta-security/meta-tpm",
+                    "meta-zenoh/meta-zenoh"
+                ],
+                "bb-env-passthrough-additions": ["DL_DIR", "SSTATE_DIR"],
+                "oe-fragments-one-of": {
+                    "distro": {
+                        "description": "Target distributions",
+                        "options" : [
+                            { "name": "distro/oeros", "description": "Oeros Reference Distro" }
+                        ]
+                    },
+                    "machine": {
+                        "description": "Target machines",
+                        "options" : [
+                            { "name": "oeros/machine-iq-9075-evk", "description": "Edge AI + robotics: Qualcomm Dragonwing IQ-9075 EVK (QCS9100 family) -- Qualcomm Intelligent Robotics SDK (Nav2/MoveIt2, QRB-ROS nodes); QAIRT/QNN with oeros/qcom-proprietary" },
+                            { "name": "oeros/machine-iq-8275-evk", "description": "Edge AI + robotics: Qualcomm Dragonwing IQ-8275 EVK (QCS8300 family) -- Qualcomm Intelligent Robotics SDK (Nav2/MoveIt2, QRB-ROS nodes); QAIRT/QNN with oeros/qcom-proprietary" }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "version": "1.0"
+}

@@ -143,8 +143,31 @@ CONFIGS = {
         ],
     },
     "oeros-wrynose-lyrical-qualcomm": {
-        "description": "OpenEmbedded ROS - Wrynose Lyrical (Qualcomm Dragonwing Edge AI + QIR SDK). QAIRT/FastCV/Hexagon binaries are opt-in: enable oeros/qcom-proprietary. See docs/edgeai.md.",
+        "description": "OpenEmbedded ROS - Wrynose Lyrical (Qualcomm Dragonwing Edge AI). QAIRT/FastCV/Hexagon binaries are opt-in: enable oeros/qcom-proprietary. The QIR SDK (iq-9075-evk, iq-8275-evk) is Jazzy-only and lives in oeros-wrynose-jazzy-qualcomm. See docs/edgeai.md.",
         "short": "OpenEmbedded ROS Wrynose Lyrical -- Qualcomm Dragonwing Edge AI",
+        "sources": {
+            "meta-qcom": git("https://github.com/qualcomm-linux/meta-qcom", W),
+            "meta-qcom-distro": git("https://github.com/qualcomm-linux/meta-qcom-distro", W),
+            # collection "ai": enables meta-qcom's dynamic-layers/ai
+            # (onnxruntime-qnn plugin EP), as in meta-qcom's ci/qcom-distro.yml
+            "meta-ai": git("https://github.com/qualcomm-linux/meta-ai", W),
+            # LAYERDEPENDS of meta-qcom (lts-linux-firmware-mixin) and of
+            # meta-qcom-distro (selinux, sota); branches as in their ci/*.yml
+            "meta-lts-mixins": git("https://git.yoctoproject.org/meta-lts-mixins", "wrynose/linux-firmware"),
+            "meta-selinux": git("https://git.yoctoproject.org/meta-selinux", W),
+            "meta-updater": git("https://github.com/uptane/meta-updater", W),
+        },
+        "layers": ["meta-lts-mixins", "meta-ai", "meta-qcom", "meta-qcom-distro",
+                   "meta-selinux", "meta-updater"],
+        "machines": [
+            ("oeros/machine-qcs6490-rb3gen2-core-kit", "Edge AI: Qualcomm RB3 Gen 2 -- QAIRT/QNN on Hexagon (with oeros/qcom-proprietary)"),
+            ("oeros/machine-qcs9100-ride-sx", "Edge AI: Qualcomm QCS9100 Ride SX -- QAIRT/QNN on Hexagon (with oeros/qcom-proprietary)"),
+        ],
+    },
+    "oeros-wrynose-jazzy-qualcomm": {
+        "description": "OpenEmbedded ROS - Wrynose Jazzy (Qualcomm Dragonwing Edge AI + QIR SDK). QAIRT/FastCV/Hexagon binaries are opt-in: enable oeros/qcom-proprietary. The QIR SDK is built against ROS 2 Jazzy (its CI uses meta-ros2-jazzy), so this config uses Jazzy instead of Lyrical. See docs/edgeai.md.",
+        "short": "OpenEmbedded ROS Wrynose Jazzy -- Qualcomm Dragonwing Edge AI",
+        "ros": "jazzy",
         "sources": {
             "meta-qcom": git("https://github.com/qualcomm-linux/meta-qcom", W),
             "meta-qcom-distro": git("https://github.com/qualcomm-linux/meta-qcom-distro", W),
@@ -161,8 +184,6 @@ CONFIGS = {
         "layers": ["meta-lts-mixins", "meta-ai", "meta-qcom", "meta-qcom-distro", "meta-qcom-robotics-sdk",
                    "meta-selinux", "meta-updater"],
         "machines": [
-            ("oeros/machine-qcs6490-rb3gen2-core-kit", "Edge AI: Qualcomm RB3 Gen 2 -- QAIRT/QNN on Hexagon (with oeros/qcom-proprietary)"),
-            ("oeros/machine-qcs9100-ride-sx", "Edge AI: Qualcomm QCS9100 Ride SX -- QAIRT/QNN on Hexagon (with oeros/qcom-proprietary)"),
             ("oeros/machine-iq-9075-evk", "Edge AI + robotics: Qualcomm Dragonwing IQ-9075 EVK (QCS9100 family) -- Qualcomm Intelligent Robotics SDK (Nav2/MoveIt2, QRB-ROS nodes); QAIRT/QNN with oeros/qcom-proprietary"),
             ("oeros/machine-iq-8275-evk", "Edge AI + robotics: Qualcomm Dragonwing IQ-8275 EVK (QCS8300 family) -- Qualcomm Intelligent Robotics SDK (Nav2/MoveIt2, QRB-ROS nodes); QAIRT/QNN with oeros/qcom-proprietary"),
         ],
@@ -196,6 +217,10 @@ CONFIGS = {
         "sources": {
             "meta-intel": git("https://git.yoctoproject.org/meta-intel", W),
             "meta-openvino": git("https://github.com/intel/meta-openvino", W),
+            # meta-intel's onednn and intel-compute-runtime recipes (and
+            # meta-python-ai's bbappends of them) sit in dynamic layers keyed on
+            # clang-revival-layer: openembedded-core's LLVM is too new for them
+            "meta-clang-revival": git("https://github.com/zboszor/meta-clang-revival", W),
         },
         "layers": ["meta-clang-revival", "meta-intel", "meta-openvino"],
         "machines": [
@@ -217,10 +242,10 @@ CONFIGS = {
             # meta-xilinx-mali400 carries python3-qtconsole/qtpy bbappends
             # (its meta-qt6 dynamic layer) whose recipes live here
             "meta-jupyter": git("https://github.com/Xilinx/meta-jupyter.git", AMD),
-            # meta-intel's onednn and intel-compute-runtime recipes (and
-            # meta-python-ai's bbappends of them) sit in dynamic layers keyed on
-            # clang-revival-layer: openembedded-core's LLVM is too new for them
-            "meta-clang-revival": git("https://github.com/zboszor/meta-clang-revival", W),
+            # the -multidomain machines' multiconfigs build their RPU firmware
+            # with DISTRO = "amd-zephyr" (meta-amd-zephyr in meta-xilinx), which
+            # LAYERDEPENDS on zephyrcore
+            "meta-zephyr": git("https://git.yoctoproject.org/meta-zephyr", W),
         },
         "layers": ["meta-zephyr/meta-zephyr-core", "meta-arm/meta-arm", "meta-arm/meta-arm-toolchain",
                    "meta-xilinx/meta-microblaze", "meta-xilinx/meta-xilinx-core",
@@ -230,6 +255,8 @@ CONFIGS = {
                    "meta-kria/meta-kria-core", "meta-kria/meta-kria-bsp",
                    "meta-amd-adaptive-socs/meta-amd-adaptive-socs-core",
                    "meta-amd-adaptive-socs/meta-amd-adaptive-socs-bsp",
+                   "meta-xilinx/meta-amd-zephyr", "meta-xilinx/meta-amd-zephyr-bsp",
+                   "meta-amd-adaptive-socs/meta-amd-adaptive-socs-zephyr-bsp",
                    "meta-vitis", "meta-openamp", "meta-xilinx-tsn", "meta-jupyter"],
         "machines": [
             ("machine/qemuarm64", "Machine configuration for running an ARMv8 system on QEMU"),
@@ -246,21 +273,18 @@ CONFIGS = {
         ],
     },
 }
-            # the -multidomain machines' multiconfigs build their RPU firmware
-            # with DISTRO = "amd-zephyr" (meta-amd-zephyr in meta-xilinx), which
-            # LAYERDEPENDS on zephyrcore
-            "meta-zephyr": git("https://git.yoctoproject.org/meta-zephyr", W),
 
 
 def render(name, spec):
     sources = dict(COMMON_SOURCES)
     sources.update(spec["sources"])
     layers = COMMON_LAYERS_HEAD + spec["layers"] + COMMON_LAYERS_TAIL
+    # ROS 2 distro of this config: "lyrical" unless the spec says otherwise
+    ros = spec.get("ros", "lyrical")
+    layers = [l.replace("meta-ros2-lyrical", "meta-ros2-" + ros) for l in layers]
     q = json.dumps
 
     out = ["{", f'    "description": {q(spec["description"])},', '    "sources": {']
-                   "meta-xilinx/meta-amd-zephyr", "meta-xilinx/meta-amd-zephyr-bsp",
-                   "meta-amd-adaptive-socs/meta-amd-adaptive-socs-zephyr-bsp",
     src_lines = []
     for k, v in sources.items():
         g = v["git-remote"]
