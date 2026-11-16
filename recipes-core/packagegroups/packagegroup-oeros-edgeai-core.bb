@@ -54,8 +54,10 @@ RDEPENDS:${PN}-python = " \
 
 # Optional: on-device profiling/debug. onnxruntime-tools is split out of
 # the onnxruntime recipe by dynamic-layers/meta-onnxruntime/.../onnxruntime_%.bbappend
+# onnxruntime-tools only exists with the "edgeai" override (see
+# dynamic-layers/meta-onnxruntime/.../onnxruntime_%.bbappend)
 RDEPENDS:${PN}-tools = " \
-    onnxruntime-tools \
     perf \
     htop \
 "
+RDEPENDS:${PN}-tools:append:edgeai = " onnxruntime-tools"

@@ -6,7 +6,10 @@
 # layer's recipe installs into ${PN}. The ONNX Runtime Python bindings
 # (import onnxruntime) stay in ${PN}: there is no separate
 # python3-onnxruntime package.
-PACKAGES =+ "${PN}-tools"
+# Only with the "edgeai" override (set by conf/fragments/edgeai.conf): adding a
+# package to another layer's recipe changes its task signatures, which
+# yocto-check-layer's test_signatures rejects for a layer that is merely added.
+PACKAGES:prepend:edgeai = "${PN}-tools "
 SUMMARY:${PN}-tools = "ONNX Runtime model tools: quantization, transformer optimizer, conversion helpers"
 FILES:${PN}-tools = " \
     ${PYTHON_SITEPACKAGES_DIR}/onnxruntime/quantization \
