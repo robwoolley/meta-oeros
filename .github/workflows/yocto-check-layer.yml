@@ -1,9 +1,10 @@
 # Runs the Yocto Project's yocto-check-layer script against meta-oeros.
 #
-# The layer's dependencies (from LAYERDEPENDS in conf/layer.conf) are cloned
-# next to it, at the URIs and branches listed in the bitbake-setup
-# configuration below, so CI checks against the same layer set Oeros builds
-# with. yocto-check-layer only parses recipes and computes task signatures, so
+# Every layer in the bitbake-setup configuration below is cloned at the URI and
+# branch it lists, and all of them are added to the check (--additional-layers)
+# so it runs against the same layer set Oeros builds with. meta-ros's world
+# build relies on that: without layers such as meta-qt6 or meta-clang it has
+# ROS recipes with no providers. yocto-check-layer only parses recipes and computes task signatures, so
 # nothing is fetched or built and there are no downloads or sstate to cache.
 name: yocto-check-layer
 
@@ -23,8 +24,6 @@ concurrency:
 env:
   # bitbake-setup configuration that pins the layer sources for this branch
   OEROS_CONFIG: conf/registry/configurations/oeros-wrynose-lyrical.conf.json
-  # Sources from that configuration needed to satisfy LAYERDEPENDS
-  DEPENDENCY_SOURCES: bitbake openembedded-core meta-openembedded meta-virtualization meta-ros
 
 jobs:
   yocto-check-layer:
@@ -49,7 +48,7 @@ jobs:
           # restricts through AppArmor by default
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-      - name: Clone dependency layers
+      - name: Clone layers
         run: |
           config="meta-oeros/$OEROS_CONFIG"
           compat=$(sed -n 's/^LAYERSERIES_COMPAT_oeros *= *"\(.*\)"/\1/p' meta-oeros/conf/layer.conf)
@@ -59,7 +58,7 @@ jobs:
             exit 1
           fi
           mkdir -p layers
-          for source in $DEPENDENCY_SOURCES; do
+          for source in $(jq -r '.sources | keys[] | select(. != "meta-oeros")' "$config"); do
             uri=$(jq -r --arg s "$source" '.sources[$s]["git-remote"].uri' "$config")
             branch=$(jq -r --arg s "$source" '.sources[$s]["git-remote"].branch' "$config")
             echo "::group::$source ($branch)"
@@ -77,16 +76,22 @@ jobs:
           LANG: en_US.UTF-8
           LC_ALL: en_US.UTF-8
         run: |
+          config="$GITHUB_WORKSPACE/meta-oeros/$OEROS_CONFIG"
+          # Layers from the configuration's bb-layers, other than oe-core
+          # (always present) and meta-oeros (the layer under test)
+          mapfile -t additional < <(jq -r '.["bitbake-setup"].configurations[0]["bb-layers"][]
+              | select(. != "openembedded-core/meta" and . != "meta-oeros")
+              | "../layers/" + .' "$config")
+          mapfile -t sources < <(find "$GITHUB_WORKSPACE/layers" -mindepth 1 -maxdepth 1 -type d ! -name bitbake ! -name openembedded-core | sort)
+
           export BITBAKEDIR="$GITHUB_WORKSPACE/layers/bitbake"
           source layers/openembedded-core/oe-init-build-env build
           cat "$GITHUB_WORKSPACE/meta-oeros/.github/yocto-check-layer/local.conf" >> conf/local.conf
           yocto-check-layer \
             --no-auto-dependency \
             --output-log "$GITHUB_WORKSPACE/yocto-check-layer.log" \
-            --dependency \
-              ../layers/meta-openembedded \
-              ../layers/meta-virtualization \
-              ../layers/meta-ros \
+            --dependency "${sources[@]}" \
+            --additional-layers "${additional[@]}" \
             -- ../meta-oeros
 
       - name: Upload log
