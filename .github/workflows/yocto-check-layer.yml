@@ -1,11 +1,10 @@
 # Runs the Yocto Project's yocto-check-layer script against meta-oeros.
 #
-# Every layer in the bitbake-setup configuration below is cloned at the URI and
-# branch it lists, and all of them are added to the check (--additional-layers)
-# so it runs against the same layer set Oeros builds with. meta-ros's world
-# build relies on that: without layers such as meta-qt6 or meta-clang it has
-# ROS recipes with no providers. yocto-check-layer only parses recipes and computes task signatures, so
-# nothing is fetched or built and there are no downloads or sstate to cache.
+# The layers are set up with bitbake-setup from the same configuration Oeros
+# is built with, using this checkout of meta-oeros instead of cloning it.
+# yocto-check-layer only parses recipes and computes task signatures, so
+# nothing is fetched or built; the only thing worth caching is bitbake-setup's
+# download directory, which holds the layer git mirrors.
 name: yocto-check-layer
 
 on:
@@ -22,8 +21,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # bitbake-setup configuration that pins the layer sources for this branch
+  # bitbake-setup configuration file and the configuration in it to check with
   OEROS_CONFIG: conf/registry/configurations/oeros-wrynose-lyrical.conf.json
+  OEROS_CONFIG_NAME: oeros-wrynose-lyrical
 
 jobs:
   yocto-check-layer:
@@ -48,7 +48,7 @@ jobs:
           # restricts through AppArmor by default
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-      - name: Clone layers
+      - name: Check the configuration matches LAYERSERIES_COMPAT
         run: |
           config="meta-oeros/$OEROS_CONFIG"
           compat=$(sed -n 's/^LAYERSERIES_COMPAT_oeros *= *"\(.*\)"/\1/p' meta-oeros/conf/layer.conf)
@@ -57,52 +57,71 @@ jobs:
             echo "::error::$OEROS_CONFIG uses openembedded-core $core_branch but LAYERSERIES_COMPAT_oeros is \"$compat\""
             exit 1
           fi
-          mkdir -p layers
-          for source in $(jq -r '.sources | keys[] | select(. != "meta-oeros")' "$config"); do
-            uri=$(jq -r --arg s "$source" '.sources[$s]["git-remote"].uri' "$config")
-            branch=$(jq -r --arg s "$source" '.sources[$s]["git-remote"].branch' "$config")
-            echo "::group::$source ($branch)"
-            for attempt in 1 2 3; do
-              git clone --depth 1 --branch "$branch" "$uri" "layers/$source" && break
-              rm -rf "layers/$source"
-              sleep $((attempt * 10))
-            done
-            git -C "layers/$source" log -1 --format='%H %s'
-            echo "::endgroup::"
-          done
+
+      - name: Get bitbake-setup
+        run: |
+          config="meta-oeros/$OEROS_CONFIG"
+          uri=$(jq -r '.sources.bitbake["git-remote"].uri' "$config")
+          branch=$(jq -r '.sources.bitbake["git-remote"].branch' "$config")
+          git clone --depth 1 --branch "$branch" "$uri" tools/bitbake
+
+      - name: Restore bitbake-setup downloads
+        uses: actions/cache@v4
+        with:
+          path: bitbake-builds/.bitbake-setup-downloads
+          key: bitbake-setup-${{ hashFiles('meta-oeros/conf/registry/configurations/*.json') }}-${{ github.run_id }}
+          restore-keys: |
+            bitbake-setup-${{ hashFiles('meta-oeros/conf/registry/configurations/*.json') }}-
+            bitbake-setup-
+
+      - name: Set up layers with bitbake-setup
+        run: |
+          # DISTRO and MACHINE are left unselected: yocto-check-layer checks
+          # that adding meta-oeros alone changes nothing, so the baseline
+          # can't already be using the oeros distro
+          tools/bitbake/bin/bitbake-setup init --non-interactive --no-init-vscode \
+            --setup-dir-name oeros \
+            --use-local-source meta-oeros "$GITHUB_WORKSPACE/meta-oeros" \
+            --skip-selection distro --skip-selection machine \
+            "meta-oeros/$OEROS_CONFIG" "$OEROS_CONFIG_NAME"
 
       - name: Run yocto-check-layer
         env:
           LANG: en_US.UTF-8
           LC_ALL: en_US.UTF-8
         run: |
-          config="$GITHUB_WORKSPACE/meta-oeros/$OEROS_CONFIG"
-          # Layers from the configuration's bb-layers, other than oe-core
-          # (always present) and meta-oeros (the layer under test)
-          mapfile -t additional < <(jq -r '.["bitbake-setup"].configurations[0]["bb-layers"][]
-              | select(. != "openembedded-core/meta" and . != "meta-oeros")
-              | "../layers/" + .' "$config")
-          # Every layer in the clones, as candidates for LAYERDEPENDS. Layers
-          # are passed by exact path with --no-auto, because auto-detection
-          # also picks up recipe directories that happen to contain conf/.
-          mapfile -t dependencies < <(cd layers && find . -path ./bitbake -prune -o -path ./openembedded-core -prune \
-              -o -path '*/conf/layer.conf' -print | sed 's|^\./\(.*\)/conf/layer.conf$|../layers/\1|' | sort)
+          setup="$GITHUB_WORKSPACE/bitbake-builds/oeros"
 
-          export BITBAKEDIR="$GITHUB_WORKSPACE/layers/bitbake"
-          source layers/openembedded-core/oe-init-build-env build
+          # yocto-check-layer adds the layer under test itself, and refuses to
+          # run if it's already in BBLAYERS
+          sed -i '\#/layers/meta-oeros \\$#d' "$setup/build/conf/bblayers.conf"
+          if grep -q meta-oeros "$setup/build/conf/bblayers.conf"; then
+            echo "::error::meta-oeros is still in bblayers.conf"
+            exit 1
+          fi
+
+          # Every layer bitbake-setup cloned (meta-oeros is a symlink, which
+          # find doesn't follow), so LAYERDEPENDS can be resolved. Layers are
+          # passed by exact path with --no-auto, because auto-detection also
+          # picks up recipe directories that happen to contain conf/.
+          mapfile -t dependencies < <(find "$setup/layers" -path "$setup/layers/bitbake" -prune \
+              -o -path "$setup/layers/openembedded-core" -prune \
+              -o -path '*/conf/layer.conf' -print | sed 's|/conf/layer.conf$||' | sort)
+
+          source "$setup/build/init-build-env"
           cat "$GITHUB_WORKSPACE/meta-oeros/.github/yocto-check-layer/local.conf" >> conf/local.conf
           # Keep every layer other than oe-core and meta-oeros out of world
           # (see .github/yocto-check-layer/local.conf)
           for layer in "${dependencies[@]}"; do
             sed -n 's/^BBFILE_COLLECTIONS *+= *" *\([^" ]*\) *"/EXCLUDE_FROM_WORLD:layer-\1 = "1"/p' "$layer/conf/layer.conf"
           done | tee -a conf/local.conf
+
           yocto-check-layer \
             --no-auto \
             --no-auto-dependency \
             --output-log "$GITHUB_WORKSPACE/yocto-check-layer.log" \
             --dependency "${dependencies[@]}" \
-            --additional-layers "${additional[@]}" \
-            -- ../meta-oeros
+            -- "$GITHUB_WORKSPACE/meta-oeros"
 
       - name: Upload log
         if: always()
