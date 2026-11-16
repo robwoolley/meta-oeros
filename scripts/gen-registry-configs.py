@@ -39,8 +39,11 @@ COMMON_SOURCES = {
     "meta-clang": git("https://github.com/kraj/meta-clang.git", W),
     "meta-intel-realsense": git("https://github.com/realsenseai/meta-intel-realsense.git", W),
     "meta-oeros": git("https://github.com/robwoolley/meta-oeros", W),
-    "meta-tensorflow-lite": git("https://github.com/robwoolley/meta-tensorflow-lite", W),
-    "meta-onnxruntime": git("https://github.com/robwoolley/meta-onnxruntime", W),
+    # upstream main (TensorFlow Lite 2.21 / ONNX Runtime 1.31.1) plus a layer.conf
+    # commit declaring wrynose; the old wrynose branches (2.19.1 / 1.22.0) enable
+    # network access in do_configure, which fails yocto-check-layer
+    "meta-tensorflow-lite": git("https://github.com/robwoolley/meta-tensorflow-lite", "feature/wrynose-upstream-main"),
+    "meta-onnxruntime": git("https://github.com/robwoolley/meta-onnxruntime", "feature/wrynose-upstream-main"),
     "meta-openembedded": git("https://github.com/openembedded/meta-openembedded", W),
     "meta-python-ai": git("https://github.com/zboszor/meta-python-ai", W),
     "meta-qt6": git("https://code.qt.io/yocto/meta-qt6.git", "6.11"),

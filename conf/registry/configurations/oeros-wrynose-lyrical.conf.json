@@ -39,15 +39,15 @@
         "meta-tensorflow-lite": {
             "git-remote": {
                 "uri": "https://github.com/robwoolley/meta-tensorflow-lite",
-                "branch": "wrynose",
-                "rev": "wrynose"
+                "branch": "feature/wrynose-upstream-main",
+                "rev": "feature/wrynose-upstream-main"
             }
         },
         "meta-onnxruntime": {
             "git-remote": {
                 "uri": "https://github.com/robwoolley/meta-onnxruntime",
-                "branch": "wrynose",
-                "rev": "wrynose"
+                "branch": "feature/wrynose-upstream-main",
+                "rev": "feature/wrynose-upstream-main"
             }
         },
         "meta-openembedded": {
