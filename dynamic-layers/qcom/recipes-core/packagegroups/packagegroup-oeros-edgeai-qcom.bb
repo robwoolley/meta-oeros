@@ -52,10 +52,12 @@ OEROS_QC_RUNTIME = " \
 # packages (packagegroup-robotics-opensource), and QRB-ROS nodes/samples
 # that are open-source but need the proprietary QNN/camera stack already
 # pulled in via -runtime (packagegroup-oss-with-prop-deps).
-RDEPENDS:${PN}-robotics = " \
-    packagegroup-qcom-ros2 \
-    packagegroup-robotics-opensource \
-    ${@'packagegroup-oss-with-prop-deps' if d.getVar('OEROS_QC') else ''} \
+# Gated like the other sub-packages: bitbake resolves the RDEPENDS of every
+# sub-package, so without the gate qcs6490/qcs9100 needed packagegroup-qcom-ros2
+# to resolve too, though only iq-9075-evk/iq-8275-evk install -robotics.
+OEROS_QC_ROBOTICS = "${@bb.utils.contains('MACHINE_FEATURES', 'edgeai-robotics-sdk', '1', '', d)}"
+RDEPENDS:${PN}-robotics = "${@'packagegroup-qcom-ros2 packagegroup-robotics-opensource' if d.getVar('OEROS_QC_ROBOTICS') else ''} \
+    ${@'packagegroup-oss-with-prop-deps' if d.getVar('OEROS_QC_ROBOTICS') and d.getVar('OEROS_QC') else ''} \
 "
 
 OEROS_QC_DEV = "qairt-sdk-dev"
