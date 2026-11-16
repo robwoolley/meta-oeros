@@ -67,7 +67,7 @@ RDEPENDS:${PN}-industrial = " \
 "
 
 # Kria SOM utilities from meta-kria-core, all Apache-2.0/MIT, plus Oeros'
-# port of the Kria robotics apps (recipes-kria-apps/, packagegroup-oeros-kria-apps): xmutil (load
+# port of the Kria robotics apps (dynamic-layers/xilinx/recipes-kria-apps/, packagegroup-oeros-kria-apps): xmutil (load
 # and unload accelerator apps), platform stats, AXI/DDR QoS tuning.
 # packagegroup-kria itself is NOT used: it RDEPENDS on the proprietary
 # k26-/k24-starter-kits firmware (those go in -proprietary instead) and on

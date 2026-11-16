@@ -176,7 +176,7 @@ newer `amd` organization.
 | `conf/fragments/machine-{k26-smk-kr-sdt,k26-smk-kv-sdt,k24-smk-kd-sdt,versal-vek280-sdt-seg,versal-2ve-2vm-vek385-revb-sdt-seg}.conf` | One-of machine options, same shape as the other vendors |
 | `conf/fragments/machine-*-multidomain.conf` | AMP variants of the five boards with OpenAMP (see below) |
 | `conf/fragments/amd-proprietary.conf` | The documented opt-in above |
-| `recipes-kria-apps/` | Port of AMD's Kria robotics apps and the KV260 camera (see below) |
+| `dynamic-layers/xilinx/recipes-kria-apps/` | Port of AMD's Kria robotics apps and the KV260 camera (see below) |
 | `dynamic-layers/xilinx/recipes-kernel/linux/linux-xlnx_%.bbappend` | Kernel options the Kria apps need (MCP251x CAN, vcan, GPIO PPS, 1-Wire), Kria only |
 | `dynamic-layers/xilinx/recipes-core/packagegroups/packagegroup-oeros-edgeai-xilinx.bb` | `-runtime` (XRT, zocl, dfx-mgr, AIE driver, packagegroup-vitis-aiml), `-pipeline` (packagegroup-xilinx-gstreamer), `-ros` (ros2_control), `-industrial` (linuxptp, can-utils, packagegroup-tsn), `-kria` (xmutil, platformstats, QoS tools), `-proprietary`, `-vitis-ai`, `-dev` |
 | `dynamic-layers/xilinx-multimedia/recipes-multimedia/gstreamer/gstreamer1.0-plugins-bad_%.bbappend` | AMD's plugins-bad fork unconditionally appends the `faac`/`faad` PACKAGECONFIGs (both `LICENSE_FLAGS = "commercial"`), which breaks the open-source default. This drops them unless `commercial` is accepted. |
@@ -191,7 +191,7 @@ newer `amd` organization.
 | bitbake-setup config | own | own | own | own | own + Jazzy config | **own** (needed: GStreamer override) |
 | Accelerated inference runtime on wrynose | CUDA/TensorRT, ORT TensorRT EP | TFLite VX/Ethos-U/Neutron, ORT VSI EP | QAIRT/QNN, ORT QNN EP | TIDL on C7x/MMA | OpenVINO, ORT OpenVINO EP | **Gap**: XRT/AIE driver only. No Vitis AI runtime or ORT Vitis AI EP on wrynose, so inference runs on the CPU (ORT/TFLite). |
 | Vendor AI video pipeline | DeepStream, nvv4l2 | NNStreamer | QIM (deferred) | edgeai-gst-apps, TIOVX | (OpenVINO GStreamer not used) | **Partial**: AMD GStreamer fork; VCU encode/decode opt-in; VVAS no longer shipped |
-| Vendor ROS 2 nodes | Isaac ROS | none | QIR SDK: QRB-ROS, Nav2/MoveIt2 | edgeai-robotics-kit | Robotics AI Suite (Oeros' own recipes) | **Yes** (Oeros' own port, `recipes-kria-apps/`): `ros-tsn-pubsub`, `kria-motor-control` (ros2_canopen), FOC motor server; plus ros2_control |
+| Vendor ROS 2 nodes | Isaac ROS | none | QIR SDK: QRB-ROS, Nav2/MoveIt2 | edgeai-robotics-kit | Robotics AI Suite (Oeros' own recipes) | **Yes** (Oeros' own port, `dynamic-layers/xilinx/recipes-kria-apps/`): `ros-tsn-pubsub`, `kria-motor-control` (ros2_canopen), FOC motor server; plus ros2_control |
 | Real-time / industrial networking | n/a | n/a | n/a | (R5F available, not wired up) | n/a | **TSN, gPTP, CAN**; OpenAMP `-multidomain` machines |
 | Proprietary content | opt-in (`oeros/nvidia-proprietary`) | opt-in, required (`oeros/nxp-proprietary`) | opt-in (`oeros/qcom-proprietary`) | none gated | none gated | opt-in (`oeros/amd-proprietary`) |
 | Reuses the vendor's own packagegroups | No | could (`packagegroup-imx-ml`) | Yes (QIR) | could (`packagegroup-edgeai-tisdk-addons`) | No | **Yes**: `packagegroup-xilinx-gstreamer`, `packagegroup-vitis-aiml`, `packagegroup-tsn` (`packagegroup-kria` is not reusable as is: it mixes proprietary firmware with a meta-security dependency) |
@@ -201,13 +201,13 @@ newer `amd` organization.
 | # | Suggestion | Status |
 |---|---|---|
 | 1 | Port Vitis AI 6.3 to wrynose | **Held**, assessed below |
-| 2 | AMD ROS 2 nodes, Intel-suite style | **Done**: `recipes-kria-apps/` |
+| 2 | AMD ROS 2 nodes, Intel-suite style | **Done**: `dynamic-layers/xilinx/recipes-kria-apps/` |
 | 3 | OpenAMP `-multidomain` fragments | **Done** |
 | 4 | KV260 camera bring-up | **Done** (needs the opt-in for the PL design and ISP firmware) |
 | 5 | Same opt-in pattern for every vendor | **Done**: `oeros/{nvidia,qcom,nxp,amd}-proprietary` |
 | 6 | Per-vendor config split | **Done**: `scripts/gen-registry-configs.py` |
 
-## AMD Kria robotics apps (`recipes-kria-apps/`)
+## AMD Kria robotics apps (`dynamic-layers/xilinx/recipes-kria-apps/`)
 
 Source: [Xilinx/meta-kria-apps](https://github.com/Xilinx/meta-kria-apps)
 `main` (MIT, `LAYERSERIES_COMPAT = "scarthgap"`). Unlike the Intel suite,

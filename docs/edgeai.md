@@ -36,7 +36,7 @@ meta-oeros/
 ├── recipes-ros/packagegroups/
 │   └── packagegroup-oeros-edgeai-ros.bb              # vision_msgs, cv_bridge, image_transport, inference node
 ├── dynamic-layers/openvino/recipes-robotics-ai-suite/  # Intel Robotics AI Suite recipes, only parsed with meta-openvino (Jazzy config)
-├── recipes-kria-apps/                             # AMD Kria robotics apps + KV260 camera (docs/amd-xilinx.md)
+├── dynamic-layers/xilinx/recipes-kria-apps/       # AMD Kria robotics apps + KV260 camera (docs/amd-xilinx.md)
 ├── dynamic-layers/meta-onnxruntime/               # onnxruntime bbappend: onnxruntime-tools sub-package
 └── dynamic-layers/<vendor>/recipes-core/packagegroups/
     └── packagegroup-oeros-edgeai-<vendor>.bb         # only parsed when the vendor layer is in BBLAYERS
