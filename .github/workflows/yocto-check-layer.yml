@@ -82,15 +82,20 @@ jobs:
           mapfile -t additional < <(jq -r '.["bitbake-setup"].configurations[0]["bb-layers"][]
               | select(. != "openembedded-core/meta" and . != "meta-oeros")
               | "../layers/" + .' "$config")
-          mapfile -t sources < <(find "$GITHUB_WORKSPACE/layers" -mindepth 1 -maxdepth 1 -type d ! -name bitbake ! -name openembedded-core | sort)
+          # Every layer in the clones, as candidates for LAYERDEPENDS. Layers
+          # are passed by exact path with --no-auto, because auto-detection
+          # also picks up recipe directories that happen to contain conf/.
+          mapfile -t dependencies < <(cd layers && find . -path ./bitbake -prune -o -path ./openembedded-core -prune \
+              -o -path '*/conf/layer.conf' -print | sed 's|^\./\(.*\)/conf/layer.conf$|../layers/\1|' | sort)
 
           export BITBAKEDIR="$GITHUB_WORKSPACE/layers/bitbake"
           source layers/openembedded-core/oe-init-build-env build
           cat "$GITHUB_WORKSPACE/meta-oeros/.github/yocto-check-layer/local.conf" >> conf/local.conf
           yocto-check-layer \
+            --no-auto \
             --no-auto-dependency \
             --output-log "$GITHUB_WORKSPACE/yocto-check-layer.log" \
-            --dependency "${sources[@]}" \
+            --dependency "${dependencies[@]}" \
             --additional-layers "${additional[@]}" \
             -- ../meta-oeros
 
