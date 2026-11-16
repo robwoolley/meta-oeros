@@ -188,7 +188,7 @@
                     "machine": {
                         "description": "Target machines",
                         "options" : [
-                            { "name": "oeros/machine-am62axx-evk", "description": "Edge AI: TI AM62A -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit" },
+                            { "name": "oeros/machine-am62axx-evm", "description": "Edge AI: TI AM62A -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit" },
                             { "name": "oeros/machine-am68-sk", "description": "Edge AI: TI AM68 -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit" },
                             { "name": "oeros/machine-am69-sk", "description": "Edge AI: TI AM69 -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit" }
                         ]

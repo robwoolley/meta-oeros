@@ -185,7 +185,7 @@ CONFIGS = {
                    "meta-arago/meta-arago-distro", "meta-arago/meta-arago-extras",
                    "meta-tisdk/meta-ti-foundational", "meta-edgeai"],
         "machines": [
-            ("oeros/machine-am62axx-evk", "Edge AI: TI AM62A -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit"),
+            ("oeros/machine-am62axx-evm", "Edge AI: TI AM62A -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit"),
             ("oeros/machine-am68-sk", "Edge AI: TI AM68 -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit"),
             ("oeros/machine-am69-sk", "Edge AI: TI AM69 -- TIDL on C7x/MMA, Edge AI GStreamer, robotics kit"),
         ],
