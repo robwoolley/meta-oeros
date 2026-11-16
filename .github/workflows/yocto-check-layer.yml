@@ -79,6 +79,7 @@ jobs:
         run: |
           export BITBAKEDIR="$GITHUB_WORKSPACE/layers/bitbake"
           source layers/openembedded-core/oe-init-build-env build
+          cat "$GITHUB_WORKSPACE/meta-oeros/.github/yocto-check-layer/local.conf" >> conf/local.conf
           yocto-check-layer \
             --no-auto-dependency \
             --output-log "$GITHUB_WORKSPACE/yocto-check-layer.log" \
