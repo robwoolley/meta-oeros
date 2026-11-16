@@ -218,7 +218,7 @@ CONFIGS = {
             # (its meta-qt6 dynamic layer) whose recipes live here
             "meta-jupyter": git("https://github.com/Xilinx/meta-jupyter.git", AMD),
         },
-        "layers": ["meta-arm/meta-arm", "meta-arm/meta-arm-toolchain",
+        "layers": ["meta-zephyr/meta-zephyr-core", "meta-arm/meta-arm", "meta-arm/meta-arm-toolchain",
                    "meta-xilinx/meta-microblaze", "meta-xilinx/meta-xilinx-core",
                    "meta-xilinx/meta-xilinx-standalone", "meta-xilinx/meta-xilinx-standalone-sdt",
                    "meta-xilinx/meta-xilinx-multimedia", "meta-xilinx/meta-xilinx-mali400",
@@ -242,6 +242,10 @@ CONFIGS = {
         ],
     },
 }
+            # the -multidomain machines' multiconfigs build their RPU firmware
+            # with DISTRO = "amd-zephyr" (meta-amd-zephyr in meta-xilinx), which
+            # LAYERDEPENDS on zephyrcore
+            "meta-zephyr": git("https://git.yoctoproject.org/meta-zephyr", W),
 
 
 def render(name, spec):
@@ -251,6 +255,8 @@ def render(name, spec):
     q = json.dumps
 
     out = ["{", f'    "description": {q(spec["description"])},', '    "sources": {']
+                   "meta-xilinx/meta-amd-zephyr", "meta-xilinx/meta-amd-zephyr-bsp",
+                   "meta-amd-adaptive-socs/meta-amd-adaptive-socs-zephyr-bsp",
     src_lines = []
     for k, v in sources.items():
         g = v["git-remote"]

@@ -154,6 +154,13 @@
                 "branch": "rel-v2026.2",
                 "rev": "rel-v2026.2"
             }
+        },
+        "meta-zephyr": {
+            "git-remote": {
+                "uri": "https://git.yoctoproject.org/meta-zephyr",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
         }
     },
     "bitbake-setup": {
@@ -179,6 +186,7 @@
                     "meta-oeros",
                     "meta-tensorflow-lite",
                     "meta-onnxruntime",
+                    "meta-zephyr/meta-zephyr-core",
                     "meta-arm/meta-arm",
                     "meta-arm/meta-arm-toolchain",
                     "meta-xilinx/meta-microblaze",
@@ -192,6 +200,9 @@
                     "meta-kria/meta-kria-bsp",
                     "meta-amd-adaptive-socs/meta-amd-adaptive-socs-core",
                     "meta-amd-adaptive-socs/meta-amd-adaptive-socs-bsp",
+                    "meta-xilinx/meta-amd-zephyr",
+                    "meta-xilinx/meta-amd-zephyr-bsp",
+                    "meta-amd-adaptive-socs/meta-amd-adaptive-socs-zephyr-bsp",
                     "meta-vitis",
                     "meta-openamp",
                     "meta-xilinx-tsn",
