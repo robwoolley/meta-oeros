@@ -91,6 +91,11 @@ jobs:
           export BITBAKEDIR="$GITHUB_WORKSPACE/layers/bitbake"
           source layers/openembedded-core/oe-init-build-env build
           cat "$GITHUB_WORKSPACE/meta-oeros/.github/yocto-check-layer/local.conf" >> conf/local.conf
+          # Keep every layer other than oe-core and meta-oeros out of world
+          # (see .github/yocto-check-layer/local.conf)
+          for layer in "${dependencies[@]}"; do
+            sed -n 's/^BBFILE_COLLECTIONS *+= *" *\([^" ]*\) *"/EXCLUDE_FROM_WORLD:layer-\1 = "1"/p' "$layer/conf/layer.conf"
+          done | tee -a conf/local.conf
           yocto-check-layer \
             --no-auto \
             --no-auto-dependency \
