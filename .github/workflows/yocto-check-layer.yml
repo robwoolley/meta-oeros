@@ -76,14 +76,14 @@ jobs:
 
       - name: Set up layers with bitbake-setup
         run: |
-          # DISTRO and MACHINE are left unselected: yocto-check-layer checks
-          # that adding meta-oeros alone changes nothing, so the baseline
-          # can't already be using the oeros distro
+          # DISTRO is left unselected: yocto-check-layer checks that adding
+          # meta-oeros alone changes nothing, so the baseline can't already be
+          # using the oeros distro
           tools/bitbake/bin/bitbake-setup init --non-interactive --no-init-vscode \
             --setup-dir-name oeros \
             --use-local-source meta-oeros "$GITHUB_WORKSPACE/meta-oeros" \
-            --skip-selection distro --skip-selection machine \
-            "meta-oeros/$OEROS_CONFIG" "$OEROS_CONFIG_NAME"
+            --skip-selection distro \
+            "meta-oeros/$OEROS_CONFIG" "$OEROS_CONFIG_NAME" machine/qemux86-64
 
       - name: Run yocto-check-layer
         env:
