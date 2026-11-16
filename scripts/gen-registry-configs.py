@@ -197,7 +197,7 @@ CONFIGS = {
             "meta-intel": git("https://git.yoctoproject.org/meta-intel", W),
             "meta-openvino": git("https://github.com/intel/meta-openvino", W),
         },
-        "layers": ["meta-intel", "meta-openvino"],
+        "layers": ["meta-clang-revival", "meta-intel", "meta-openvino"],
         "machines": [
             ("machine/genericx86-64", "Machine configuration for generic x86_64 (64-bit) PCs and servers"),
             ("oeros/machine-intel-corei7-64", "Edge AI: Intel Core Ultra/Atom -- OpenVINO on CPU/iGPU/NPU"),
@@ -217,6 +217,10 @@ CONFIGS = {
             # meta-xilinx-mali400 carries python3-qtconsole/qtpy bbappends
             # (its meta-qt6 dynamic layer) whose recipes live here
             "meta-jupyter": git("https://github.com/Xilinx/meta-jupyter.git", AMD),
+            # meta-intel's onednn and intel-compute-runtime recipes (and
+            # meta-python-ai's bbappends of them) sit in dynamic layers keyed on
+            # clang-revival-layer: openembedded-core's LLVM is too new for them
+            "meta-clang-revival": git("https://github.com/zboszor/meta-clang-revival", W),
         },
         "layers": ["meta-zephyr/meta-zephyr-core", "meta-arm/meta-arm", "meta-arm/meta-arm-toolchain",
                    "meta-xilinx/meta-microblaze", "meta-xilinx/meta-xilinx-core",

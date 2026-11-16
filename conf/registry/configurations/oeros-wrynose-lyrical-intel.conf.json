@@ -112,6 +112,13 @@
                 "branch": "wrynose",
                 "rev": "wrynose"
             }
+        },
+        "meta-clang-revival": {
+            "git-remote": {
+                "uri": "https://github.com/zboszor/meta-clang-revival",
+                "branch": "wrynose",
+                "rev": "wrynose"
+            }
         }
     },
     "bitbake-setup": {
@@ -137,6 +144,7 @@
                     "meta-oeros",
                     "meta-tensorflow-lite",
                     "meta-onnxruntime",
+                    "meta-clang-revival",
                     "meta-intel",
                     "meta-openvino",
                     "meta-python-ai",
