@@ -55,10 +55,11 @@ drift):
 | `oeros-wrynose-lyrical` | qemu*, generic*, Raspberry Pi | meta-raspberrypi |
 | `oeros-wrynose-lyrical-nvidia` | Jetson Orin Nano, AGX Orin | meta-tegra, meta-tegra-community |
 | `oeros-wrynose-lyrical-nxp` | i.MX 8M Plus, 93, 95 EVKs | meta-freescale, meta-freescale-distro, meta-freescale-ml, meta-yocto/meta-poky, meta-imx (bsp, sdk, ml) |
-| `oeros-wrynose-lyrical-qualcomm` | RB3 Gen 2, QCS9100 Ride SX, IQ-9075, IQ-8275 | meta-ai, meta-qcom, meta-qcom-distro, meta-qcom-robotics-sdk, meta-lts-mixins (`wrynose/linux-firmware`), meta-selinux, meta-updater |
+| `oeros-wrynose-lyrical-qualcomm` | RB3 Gen 2, QCS9100 Ride SX | meta-ai, meta-qcom, meta-qcom-distro, meta-lts-mixins (`wrynose/linux-firmware`), meta-selinux, meta-updater |
+| `oeros-wrynose-jazzy-qualcomm` | IQ-9075, IQ-8275 (QIR SDK) | as above + meta-qcom-robotics-sdk, with meta-ros2-jazzy: the SDK is built against ROS 2 Jazzy and its bbappends and `domain-bridge` do not exist for Lyrical |
 | `oeros-wrynose-lyrical-ti` | AM62A, AM68, AM69 | meta-arm, meta-ti (bsp, extras, test), meta-arago (distro, extras), meta-tisdk/meta-ti-foundational, meta-edgeai |
-| `oeros-wrynose-lyrical-intel` | intel-corei7-64 | meta-intel, meta-openvino |
-| `oeros-wrynose-lyrical-amd` | KR260, KV260, KD240, VEK280, VEK385 (+ multidomain) | see `docs/amd-xilinx.md` |
+| `oeros-wrynose-lyrical-intel` | intel-corei7-64 | meta-intel, meta-openvino, meta-clang-revival (meta-intel's onednn and intel-compute-runtime dynamic layers) |
+| `oeros-wrynose-lyrical-amd` | KR260, KV260, KD240, VEK280, VEK385 (+ multidomain) | see `docs/amd-xilinx.md`; includes meta-zephyr and meta-amd-zephyr for the multidomain RPU firmware |
 | `oeros-wrynose-jazzy` (hand-written) | intel-corei7-64 + Robotics AI Suite | meta-intel, meta-openvino, meta-ros2-jazzy |
 
 Common set: oe-core, meta-openembedded (filesystems, gnome, initramfs,
@@ -129,7 +130,7 @@ self-contained: it sets `MACHINE`, pulls in the vendor `.inc`, sets
 | Nvidia | jetson-orin-nano-devkit (Super nvpmodel by default), jetson-agx-orin-devkit | meta-tegra, **meta-tegra-community** (DeepStream: `deepstream-9.1`) | packagegroup-oeros-edgeai-tegra (opt-in) | CUDA/TensorRT/VPI, DeepStream, Isaac ROS |
 | NXP | imx8mp-lpddr4-evk, imx93-11x11-lpddr4x-evk, imx95-19x19-lpddr5-evk | meta-freescale, **meta-freescale-distro**, **meta-freescale-ml**, **meta-yocto/meta-poky**, meta-imx (meta-imx-bsp/-sdk/-ml) | packagegroup-oeros-edgeai-imx | TFLite VX/Ethos-U/Neutron delegates, ORT VSI-NPU EP, NNStreamer |
 | Qualcomm | qcs6490-rb3gen2-core-kit, qcs9100-ride-sx | **meta-ai**, meta-qcom, meta-qcom-distro, **meta-lts-mixins**, **meta-selinux**, **meta-updater** | packagegroup-oeros-edgeai-qcom (**runtime only**) | QAIRT/QNN on Hexagon, TFLite/ORT QNN EP |
-| Qualcomm (robotics) | iq-9075-evk, iq-8275-evk | as above + meta-qcom-robotics-sdk | packagegroup-oeros-edgeai-qcom (**runtime + robotics**) | QAIRT/QNN on Hexagon + QIR SDK: Nav2/MoveIt2, QRB-ROS nodes |
+| Qualcomm (robotics, `oeros-wrynose-jazzy-qualcomm`) | iq-9075-evk, iq-8275-evk | as above + meta-qcom-robotics-sdk, meta-ros2-jazzy | packagegroup-oeros-edgeai-qcom (**runtime + robotics**) | QAIRT/QNN on Hexagon + QIR SDK: Nav2/MoveIt2, QRB-ROS nodes |
 | TI | am62axx-evm, am68-sk, am69-sk | meta-arm, meta-ti (meta-ti-bsp/-extras/**-test**), **meta-arago** (distro, extras), **meta-tisdk/meta-ti-foundational**, meta-edgeai | packagegroup-oeros-edgeai-ti | TIDL on C7x/MMA, TIOVX, edgeai-gst, robotics kit |
 | Intel | intel-corei7-64 | meta-intel, meta-openvino | packagegroup-oeros-edgeai-intel | OpenVINO CPU/iGPU/NPU, ORT OpenVINO EP, compute-runtime |
 | AMD/Xilinx | k26-smk-kr-sdt, k26-smk-kv-sdt, k24-smk-kd-sdt, versal-vek280-sdt-seg, versal-2ve-2vm-vek385-revb-sdt-seg (+ `-multidomain` OpenAMP variants) | meta-xilinx, meta-kria, meta-amd-adaptive-socs, meta-vitis, meta-openamp, meta-xilinx-tsn, meta-jupyter, meta-arm | packagegroup-oeros-edgeai-xilinx + packagegroup-oeros-kria-apps | XRT/zocl, DFX, AI Engine, ros2_control, TSN; Vitis AI not on wrynose |
