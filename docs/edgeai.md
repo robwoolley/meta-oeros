@@ -35,7 +35,7 @@ meta-oeros/
 │   └── packagegroup-oeros-edgeai-core.bb             # onnxruntime, tflite, opencv, gstreamer, python
 ├── recipes-ros/packagegroups/
 │   └── packagegroup-oeros-edgeai-ros.bb              # vision_msgs, cv_bridge, image_transport, inference node
-├── recipes-robotics-ai-suite/                     # Intel Robotics AI Suite recipes (Jazzy config)
+├── dynamic-layers/openvino/recipes-robotics-ai-suite/  # Intel Robotics AI Suite recipes, only parsed with meta-openvino (Jazzy config)
 ├── recipes-kria-apps/                             # AMD Kria robotics apps + KV260 camera (docs/amd-xilinx.md)
 ├── dynamic-layers/meta-onnxruntime/               # onnxruntime bbappend: onnxruntime-tools sub-package
 └── dynamic-layers/<vendor>/recipes-core/packagegroups/
@@ -134,7 +134,7 @@ self-contained: it sets `MACHINE`, pulls in the vendor `.inc`, sets
 | TI | am62axx-evm, am68-sk, am69-sk | meta-arm, meta-ti (meta-ti-bsp/-extras/**-test**), **meta-arago** (distro, extras), **meta-tisdk/meta-ti-foundational**, meta-edgeai | packagegroup-oeros-edgeai-ti | TIDL on C7x/MMA, TIOVX, edgeai-gst, robotics kit |
 | Intel | intel-corei7-64 | meta-intel, meta-openvino | packagegroup-oeros-edgeai-intel | OpenVINO CPU/iGPU/NPU, ORT OpenVINO EP, compute-runtime |
 | AMD/Xilinx | k26-smk-kr-sdt, k26-smk-kv-sdt, k24-smk-kd-sdt, versal-vek280-sdt-seg, versal-2ve-2vm-vek385-revb-sdt-seg (+ `-multidomain` OpenAMP variants) | meta-xilinx, meta-kria, meta-amd-adaptive-socs, meta-vitis, meta-openamp, meta-xilinx-tsn, meta-jupyter, meta-arm | packagegroup-oeros-edgeai-xilinx + packagegroup-oeros-kria-apps | XRT/zocl, DFX, AI Engine, ros2_control, TSN; Vitis AI not on wrynose |
-| Intel (robotics) | intel-corei7-64 (**Jazzy variant**) | meta-intel, meta-openvino, meta-oeros's own new `recipes-robotics-ai-suite/` | packagegroup-oeros-edgeai-intel (**+ -robotics-ai-suite**) | OpenVINO + Intel Robotics AI Suite: YOLOv8 perception, Nav2 wandering, ADBSCAN — on the separate `oeros-wrynose-jazzy` config |
+| Intel (robotics) | intel-corei7-64 (**Jazzy variant**) | meta-intel, meta-openvino, meta-oeros's own new `dynamic-layers/openvino/recipes-robotics-ai-suite/` | packagegroup-oeros-edgeai-intel (**+ -robotics-ai-suite**) | OpenVINO + Intel Robotics AI Suite: YOLOv8 perception, Nav2 wandering, ADBSCAN — on the separate `oeros-wrynose-jazzy` config |
 
 Common to all: see "Configurations" above → packagegroup-oeros-edgeai-core
 (`onnxruntime` incl. its Python bindings, `onnxruntime-tools`,
@@ -238,10 +238,12 @@ robotics, education, manufacturing, healthcare, etc. — as one repo).
 `open-edge-platform` and `intel` GitHub orgs, the Yocto Project Layer
 Index, and GitHub-wide code search); its own release engineering targets
 Ubuntu/APT (`.deb`s built by Docker + per-component Makefiles). This is
-greenfield recipe work, in a new `recipes-robotics-ai-suite/` directory
-(plain `recipes-*`, not `dynamic-layers/`, since these are meta-oeros's
-own new recipes with no third-party-layer-presence problem to gate on —
-`COMPATIBLE_MACHINE` alone satisfies "only available for Intel machines").
+greenfield recipe work, in a new `dynamic-layers/openvino/recipes-robotics-ai-suite/`
+directory. It is a dynamic layer keyed on meta-openvino (`openvino`):
+`yolo` DEPENDS on `openvino-inference-engine`, and none of these recipes sets
+`COMPATIBLE_MACHINE`, so as plain `recipes-*` they were parsed in every config
+and `yocto-check-layer`'s `test_world` failed with "Nothing PROVIDES
+'openvino-inference-engine'" on the base config.
 
 **Recipes created with `recipetool create` + manual ROS-ification**, per
 project convention: `recipetool` gets `SRC_URI`/`SRCREV`/a first-pass

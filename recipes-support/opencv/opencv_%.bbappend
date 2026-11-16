@@ -1,4 +1,4 @@
-# yolo (recipes-robotics-ai-suite/yolo) unconditionally calls
+# yolo (dynamic-layers/openvino/recipes-robotics-ai-suite/yolo) unconditionally calls
 # cv::dnn::blobFromImage(), but opencv's "dnn" PACKAGECONFIG option is not
 # in the default PACKAGECONFIG set -- do_compile fails with "'cv::dnn' has
 # not been declared". Only enable it for machines that actually need the
