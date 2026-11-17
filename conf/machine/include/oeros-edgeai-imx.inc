@@ -8,3 +8,7 @@ OEROS_EDGEAI_TFLITE = "tensorflow-lite"
 OEROS_EDGEAI_TFLITE_PYTHON = ""
 # The NXP EULA is no longer accepted here: enable the oeros/nxp-proprietary
 # fragment (required -- i.MX boot firmware is EULA-covered; docs/edgeai.md).
+
+# The i.MX GPU stacks replace mesa, which rviz-ogre-vendor (behind
+# vision-msgs-rviz-plugins in packagegroup-oeros-edgeai-ros) DEPENDS on
+OEROS_RVIZ_PLUGINS = ""

@@ -29,7 +29,12 @@ RDEPENDS:${PN}-image = " \
 # yocto-check-layer. Set OEROS_INFERENCE_NODE = "oeros-inference-node" (or the
 # chosen provider) once the recipe exists; it is empty until then.
 OEROS_INFERENCE_NODE ??= ""
+# vision-msgs-rviz-plugins pulls in rviz-ogre-vendor, which DEPENDS on mesa. Where
+# a vendor GPU stack replaces mesa (the libmali DISTRO_FEATURE from
+# oeros/amd-proprietary, the i.MX GPU stacks) it is left out: machine includes
+# set OEROS_RVIZ_PLUGINS to "".
+OEROS_RVIZ_PLUGINS ??= "${@bb.utils.contains('DISTRO_FEATURES', 'libmali', '', 'vision-msgs-rviz-plugins', d)}"
 RDEPENDS:${PN}-inference = " \
     ${OEROS_INFERENCE_NODE} \
-    vision-msgs-rviz-plugins \
+    ${OEROS_RVIZ_PLUGINS} \
 "
